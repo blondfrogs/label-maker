@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Label Maker for Addresses</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .template-selector {
+            margin-bottom: 30px;
+        }
+
+        .template-selector label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .template-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .template-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-button:hover {
+            background: #f0f2ff;
+        }
+
+        .tab-button.active:hover {
+            background: #5568d3;
+        }
+
+        .input-section {
+            display: none;
+        }
+
+        .input-section.active {
+            display: block;
+        }
+
+        .drop-zone {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .drop-zone:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .drop-zone.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .drop-zone-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone-text {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone-hint {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .manual-entry {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .manual-entry h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .address-form {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .address-form input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .address-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .addresses-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .address-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .address-item-content {
+            flex: 1;
+        }
+
+        .address-item-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .address-item-details {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .btn-remove {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-remove:hover {
+            background: #cc0000;
+        }
+
+        .generate-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .generate-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .status.processing {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .format-info {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .format-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .format-example {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .footer-disclaimer {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .footer-disclaimer strong {
+            color: #721c24;
+        }
+
+        .footer-links {
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-copyright {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .download-example {
+            display: inline-block;
+            margin-top: 10px;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .download-example:hover {
+            text-decoration: underline;
+            color: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Free Label Maker for Addresses</h1>
+        <p class="subtitle">Generate professional PDF address labels - Works with Avery & compatible brands</p>
+
+        <!-- Template Selector -->
+        <div class="template-selector">
+            <label for="templateSelect">Select Label Template:</label>
+            <select id="templateSelect">
+                <option value="8160">Avery 8160/5160 - Standard Address (1" × 2⅝", 30 per sheet) ⭐ Most Popular</option>
+                <option value="5162">Avery 5162/8162 - Wide Address (1⅓" × 4", 14 per sheet)</option>
+                <option value="5167">Avery 5167/8167 - Return Address (½" × 1¾", 80 per sheet)</option>
+                <option value="5161">Avery 5161/8161 - Large Address (1" × 4", 20 per sheet)</option>
+                <option value="5163">Avery 5163/8163 - Shipping Labels (2" × 4", 10 per sheet)</option>
+                <option value="5164">Avery 5164/8164 - Large Shipping (3⅓" × 4", 6 per sheet)</option>
+            </select>
+        </div>
+
+        <!-- Input Method Tabs -->
+        <div class="input-tabs">
+            <button class="tab-button active" onclick="switchTab('upload')">Upload File</button>
+            <button class="tab-button" onclick="switchTab('manual')">Manual Entry</button>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="uploadSection" class="input-section active">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📄</div>
+                <div class="drop-zone-text">Drag & drop your CSV/TSV file here</div>
+                <div class="drop-zone-hint">or click to browse</div>
+            </div>
+            <input type="file" id="fileInput" class="file-input" accept=".csv,.tsv,.txt">
+
+            <div class="format-info">
+                <h3>Expected File Format</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="#" class="download-example" onclick="downloadExampleCSV(); return false;">📥 Download example.csv</a>
+                    <a href="#" class="download-example" onclick="downloadExampleExcel(); return false;">📊 Download example.xlsx</a>
+                </div>
+                <p style="margin-top: 15px;">Your CSV or TSV file should have these columns:</p>
+                <div class="format-example">Fullname,Address,City State Zip Code<br>John Smith,123 Main St,New York NY 10001<br>Jane Doe,456 Oak Ave,Boston MA 02101</div>
+                <p style="margin-top: 10px; font-size: 12px; color: #888;">
+                    💡 <strong>Tip:</strong> Download the Excel file, edit it with your addresses, then save as CSV to upload here.
+                </p>
+            </div>
+        </div>
+
+        <!-- Manual Entry Section -->
+        <div id="manualSection" class="input-section">
+            <div class="manual-entry">
+                <h3>Add Address</h3>
+                <div class="address-form">
+                    <input type="text" id="manualName" placeholder="Full Name (e.g., John Smith)">
+                    <input type="text" id="manualAddress" placeholder="Street Address (e.g., 123 Main St)">
+                    <input type="text" id="manualCityStateZip" placeholder="City, State Zip (e.g., New York NY 10001)">
+                </div>
+                <div class="form-buttons">
+                    <button class="btn btn-primary" onclick="addManualAddress()">Add Address</button>
+                    <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+
+                <div id="addressesList" class="addresses-list"></div>
+
+                <button class="generate-btn" id="manualGenerateBtn" onclick="generateFromManual()" disabled>
+                    Generate Labels (0 addresses)
+                </button>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <!-- Printing Instructions -->
+        <div class="instructions">
+            <h3>📋 Important Printing Instructions</h3>
+            <ul>
+                <li><strong>Print Scale:</strong> Set to <strong>100%</strong> or "Actual Size" (NOT "Fit to Page")</li>
+                <li><strong>Paper Size:</strong> US Letter (8.5" × 11")</li>
+                <li><strong>Test First:</strong> Print one page on regular paper and hold it up to the light against your label sheet to check alignment</li>
+                <li><strong>No Margins Override:</strong> Use the PDF's built-in margins</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-disclaimer">
+                <strong>⚠️ DISCLAIMER - USE AT YOUR OWN RISK</strong><br>
+                This software is provided "AS IS" without warranty of any kind, express or implied.
+                The creators and contributors are not liable for any damages, printing errors, wasted materials,
+                or other issues that may arise from using this tool. Always test print on regular paper first
+                before using actual label sheets.
+            </div>
+
+            <div>
+                <strong>Legal Notice:</strong> This is an independent, open-source tool. We are not affiliated with,
+                endorsed by, or sponsored by Avery Dennison Corporation or any other label manufacturer.
+                "Avery" and related trademarks are the property of their respective owners.
+            </div>
+
+            <div class="footer-links">
+                <a href="https://github.com/blondfrogs/label-maker" target="_blank">GitHub</a>
+                <a href="https://github.com/blondfrogs/label-maker/blob/master/LICENSE" target="_blank">MIT License</a>
+                <a href="https://github.com/blondfrogs/label-maker/issues" target="_blank">Report Issue</a>
+            </div>
+
+            <div class="footer-copyright">
+                © 2025 Free Label Maker | Open Source Project |
+                Your privacy is protected - all processing happens in your browser, no data is sent to any server.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Label templates configuration - All measurements in inches
+        // Format: { width, height, topMargin, sideMargin, hPitch (horizontal spacing), vPitch (vertical spacing), cols, rows }
+        const TEMPLATES = {
+            '8160': { width: 2.625, height: 1.0, topMargin: 0.5, sideMargin: 0.19, hPitch: 2.75, vPitch: 1.0, cols: 3, rows: 10 },
+            '5160': { width: 2.625, height: 1.0, topMargin: 0.5, sideMargin: 0.19, hPitch: 2.75, vPitch: 1.0, cols: 3, rows: 10 },
+            '5162': { width: 4.0, height: 1.33, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 1.33, cols: 2, rows: 7 },
+            '5167': { width: 1.75, height: 0.5, topMargin: 0.5, sideMargin: 0.28, hPitch: 2.06, vPitch: 0.5, cols: 4, rows: 20 },
+            '5161': { width: 4.0, height: 1.0, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 1.0, cols: 2, rows: 10 },
+            '5163': { width: 4.0, height: 2.0, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 2.0, cols: 2, rows: 5 },
+            '5164': { width: 4.0, height: 3.33, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 3.33, cols: 2, rows: 3 }
+        };
+
+        let currentTemplate = '8160';
+        let manualAddresses = [];
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const templateSelect = document.getElementById('templateSelect');
+
+        templateSelect.addEventListener('change', (e) => {
+            currentTemplate = e.target.value;
+        });
+
+        function switchTab(tab) {
+            const buttons = document.querySelectorAll('.tab-button');
+            const sections = document.querySelectorAll('.input-section');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            sections.forEach(section => section.classList.remove('active'));
+
+            if (tab === 'upload') {
+                buttons[0].classList.add('active');
+                document.getElementById('uploadSection').classList.add('active');
+            } else {
+                buttons[1].classList.add('active');
+                document.getElementById('manualSection').classList.add('active');
+            }
+        }
+
+        // File upload handlers
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function parseData(content) {
+            const lines = content.trim().split('\n');
+            const dataLines = lines.slice(1);
+
+            return dataLines.map(line => {
+                let parts;
+                if (line.includes('\t')) {
+                    parts = line.split('\t').map(p => p.trim());
+                } else {
+                    parts = parseCSVLine(line);
+                }
+
+                if (parts.length >= 3) {
+                    const fullname = parts[0];
+                    const address = parts[1];
+                    let cityStateZip;
+
+                    if (parts.length === 3) {
+                        cityStateZip = parts[2];
+                    } else if (parts.length === 4) {
+                        cityStateZip = parts[2] + ' ' + parts[3];
+                    } else {
+                        cityStateZip = parts.slice(2).join(', ');
+                    }
+
+                    return { fullname, address, cityStateZip };
+                }
+                return null;
+            }).filter(item => item !== null);
+        }
+
+        function drawLabel(pdf, addressData, x, y, template) {
+            if (!addressData) return;
+
+            // Adjust font sizes and spacing based on label size
+            let nameFontSize, addressFontSize, lineSpacing, startPadding;
+
+            if (template.height <= 0.5) {
+                // Small labels like 5167 (return address)
+                nameFontSize = 7;
+                addressFontSize = 6;
+                lineSpacing = 0.08;
+                startPadding = 0.08;
+            } else if (template.height <= 1.0) {
+                // Standard address labels
+                nameFontSize = 11;
+                addressFontSize = 10;
+                lineSpacing = 0.15;
+                startPadding = 0.25;
+            } else {
+                // Large shipping labels
+                nameFontSize = 13;
+                addressFontSize = 11;
+                lineSpacing = 0.18;
+                startPadding = 0.3;
+            }
+
+            const padding = 0.08;
+            const startX = x + padding;
+            let currentY = y + padding + startPadding;
+
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(nameFontSize);
+            pdf.text(addressData.fullname, startX, currentY);
+            currentY += lineSpacing;
+
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(addressFontSize);
+            pdf.text(addressData.address, startX, currentY);
+            currentY += lineSpacing;
+
+            pdf.text(addressData.cityStateZip, startX, currentY);
+        }
+
+        function generateLabelsPDF(addresses) {
+            const template = TEMPLATES[currentTemplate];
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'in',
+                format: 'letter'
+            });
+
+            const labelsPerPage = template.cols * template.rows;
+            const totalPages = Math.ceil(addresses.length / labelsPerPage);
+
+            for (let page = 0; page < totalPages; page++) {
+                if (page > 0) pdf.addPage();
+
+                const pageStartIndex = page * labelsPerPage;
+
+                for (let row = 0; row < template.rows; row++) {
+                    for (let col = 0; col < template.cols; col++) {
+                        const labelIndex = pageStartIndex + (row * template.cols) + col;
+                        if (labelIndex >= addresses.length) break;
+
+                        const addressData = addresses[labelIndex];
+                        const x = template.sideMargin + (col * template.hPitch);
+                        const y = template.topMargin + (row * template.vPitch);
+
+                        drawLabel(pdf, addressData, x, y, template);
+                    }
+                }
+            }
+
+            return pdf;
+        }
+
+        async function handleFile(file) {
+            showStatus('Processing file...', 'processing');
+
+            try {
+                const content = await file.text();
+                const addresses = parseData(content);
+
+                if (addresses.length === 0) {
+                    showStatus('No valid addresses found in file. Please check the format.', 'error');
+                    return;
+                }
+
+                showStatus(`Generating PDF labels for ${addresses.length} addresses...`, 'processing');
+
+                const pdf = generateLabelsPDF(addresses);
+                pdf.save(`${currentTemplate}-labels.pdf`);
+
+                const template = TEMPLATES[currentTemplate];
+                const totalPages = Math.ceil(addresses.length / (template.cols * template.rows));
+                showStatus(`✓ Success! Generated ${addresses.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
+
+            } catch (error) {
+                console.error(error);
+                showStatus('Error processing file: ' + error.message, 'error');
+            }
+        }
+
+        // Manual entry functions
+        function addManualAddress() {
+            const name = document.getElementById('manualName').value.trim();
+            const address = document.getElementById('manualAddress').value.trim();
+            const cityStateZip = document.getElementById('manualCityStateZip').value.trim();
+
+            if (!name || !address || !cityStateZip) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            manualAddresses.push({ fullname: name, address, cityStateZip });
+            updateAddressesList();
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('manualName').value = '';
+            document.getElementById('manualAddress').value = '';
+            document.getElementById('manualCityStateZip').value = '';
+        }
+
+        function removeAddress(index) {
+            manualAddresses.splice(index, 1);
+            updateAddressesList();
+        }
+
+        function updateAddressesList() {
+            const list = document.getElementById('addressesList');
+            const btn = document.getElementById('manualGenerateBtn');
+
+            if (manualAddresses.length === 0) {
+                list.innerHTML = '';
+                btn.disabled = true;
+                btn.textContent = 'Generate Labels (0 addresses)';
+                return;
+            }
+
+            btn.disabled = false;
+            btn.textContent = `Generate Labels (${manualAddresses.length} address${manualAddresses.length > 1 ? 'es' : ''})`;
+
+            list.innerHTML = manualAddresses.map((addr, index) => `
+                <div class="address-item">
+                    <div class="address-item-content">
+                        <div class="address-item-name">${addr.fullname}</div>
+                        <div class="address-item-details">${addr.address}, ${addr.cityStateZip}</div>
+                    </div>
+                    <button class="btn-remove" onclick="removeAddress(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function generateFromManual() {
+            if (manualAddresses.length === 0) return;
+
+            showStatus(`Generating PDF labels for ${manualAddresses.length} addresses...`, 'processing');
+
+            try {
+                const pdf = generateLabelsPDF(manualAddresses);
+                pdf.save(`${currentTemplate}-labels.pdf`);
+
+                const template = TEMPLATES[currentTemplate];
+                const totalPages = Math.ceil(manualAddresses.length / (template.cols * template.rows));
+                showStatus(`✓ Success! Generated ${manualAddresses.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
+            } catch (error) {
+                console.error(error);
+                showStatus('Error generating labels: ' + error.message, 'error');
+            }
+        }
+
+        // Sample address data
+        const SAMPLE_ADDRESSES = [
+            ['Fullname', 'Address', 'City State Zip Code'],
+            ['John Smith', '123 Main St', 'New York NY 10001'],
+            ['Jane Doe', '456 Oak Ave', 'Boston MA 02101'],
+            ['Robert Johnson', '789 Pine Rd', 'Chicago IL 60601'],
+            ['Maria Garcia', '321 Maple Dr', 'Los Angeles CA 90001'],
+            ['David Lee', '654 Cedar Ln', 'Houston TX 77001'],
+            ['Sarah Wilson', '987 Birch St', 'Phoenix AZ 85001'],
+            ['Michael Brown', '147 Elm Ave', 'Philadelphia PA 19101'],
+            ['Emily Davis', '258 Walnut Blvd', 'San Antonio TX 78201'],
+            ['Christopher Martinez', '369 Ash Ct', 'San Diego CA 92101'],
+            ['Jessica Anderson', '741 Oak Circle', 'Dallas TX 75201']
+        ];
+
+        // Download example CSV file
+        function downloadExampleCSV() {
+            const csvContent = SAMPLE_ADDRESSES.map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'example-addresses.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Download example Excel file
+        function downloadExampleExcel() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+
+            // Create worksheet from array data
+            const ws = XLSX.utils.aoa_to_sheet(SAMPLE_ADDRESSES);
+
+            // Set column widths
+            ws['!cols'] = [
+                { wch: 25 },  // Fullname column
+                { wch: 30 },  // Address column
+                { wch: 30 }   // City State Zip column
+            ];
+
+            // Make header row bold (if possible - depends on Excel support)
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Addresses');
+
+            // Generate Excel file and trigger download
+            XLSX.writeFile(wb, 'example-addresses.xlsx');
+        }
+    </script>
+</body>
+</html>

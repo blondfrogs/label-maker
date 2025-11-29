@@ -23,7 +23,7 @@
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -618,6 +618,115 @@
             background: #5a6268;
         }
 
+        /* Multi-column form layout */
+        .form-row {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-row.two-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-row.three-col {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .form-row.four-col {
+            grid-template-columns: 1fr 100px 120px 100px;
+        }
+
+        .form-row.name-row {
+            grid-template-columns: 70px 1fr 1fr 60px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Address 2 placement toggle */
+        .address2-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 10px;
+            background: #f0f2ff;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .address2-option label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .address2-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .address2-hint {
+            font-size: 11px;
+            color: #888;
+            margin-left: auto;
+        }
+
+        /* Return address section styling */
+        .return-address-entry {
+            background: #f0fff4;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #c3e6cb;
+        }
+
+        .return-address-entry h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .return-address-info {
+            background: #d4edda;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #155724;
+        }
+
+        @media (max-width: 600px) {
+            .form-row.two-col,
+            .form-row.three-col,
+            .form-row.four-col,
+            .form-row.name-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -642,6 +751,7 @@
         <div class="input-tabs">
             <button class="tab-button active" onclick="switchTab('upload')">Upload File</button>
             <button class="tab-button" onclick="switchTab('manual')">Manual Entry</button>
+            <button class="tab-button" onclick="switchTab('return')">Return Address</button>
         </div>
 
         <!-- Upload Section -->
@@ -659,8 +769,15 @@
                     <a href="#" class="download-example" onclick="downloadExampleCSV(); return false;">📥 Download example.csv</a>
                     <a href="#" class="download-example" onclick="downloadExampleExcel(); return false;">📊 Download example.xlsx</a>
                 </div>
-                <p style="margin-top: 15px;">Your CSV or TSV file should have these columns:</p>
-                <div class="format-example">Fullname,Address,City State Zip Code<br>John Smith,123 Main St,New York NY 10001<br>Jane Doe,456 Oak Ave,Boston MA 02101</div>
+                <p style="margin-top: 15px;">Your CSV file can use either format:</p>
+                <div class="format-example" style="font-size: 11px;">
+                    <strong>Expanded format (recommended):</strong><br>
+                    Title,First Name,Last Name,Suffix,Address 1,Address 2,City,State,Postal Code,Country<br>
+                    Dr.,Jane,Doe,PhD,456 Oak Ave,Suite 200,Boston,MA,02101,USA<br><br>
+                    <strong>Simple format (also works):</strong><br>
+                    Fullname,Address,City State Zip<br>
+                    John Smith,123 Main St,New York NY 10001
+                </div>
                 <p style="margin-top: 10px; font-size: 12px; color: #888;">
                     💡 <strong>Tip:</strong> Download the Excel file, edit it with your addresses, then save as CSV to upload here.
                 </p>
@@ -697,9 +814,60 @@
             <div class="manual-entry">
                 <h3>Add Address</h3>
                 <div class="address-form">
-                    <input type="text" id="manualName" placeholder="Full Name (e.g., John Smith)">
-                    <input type="text" id="manualAddress" placeholder="Street Address (e.g., 123 Main St)">
-                    <input type="text" id="manualCityStateZip" placeholder="City, State Zip (e.g., New York NY 10001)">
+                    <!-- Name Row: Title, First, Last, Suffix -->
+                    <div class="form-row name-row">
+                        <div class="form-group">
+                            <label for="manualTitle">Title</label>
+                            <input type="text" id="manualTitle" placeholder="Hon.">
+                        </div>
+                        <div class="form-group">
+                            <label for="manualFirst">First Name *</label>
+                            <input type="text" id="manualFirst" placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label for="manualLast">Last Name *</label>
+                            <input type="text" id="manualLast" placeholder="Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="manualSuffix">Suffix</label>
+                            <input type="text" id="manualSuffix" placeholder="Jr.">
+                        </div>
+                    </div>
+                    <!-- Address Row -->
+                    <div class="form-group">
+                        <label for="manualAddress1">Address Line 1 *</label>
+                        <input type="text" id="manualAddress1" placeholder="123 Main St">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualAddress2">Address Line 2</label>
+                        <input type="text" id="manualAddress2" placeholder="Apt 4B, Suite 100, etc.">
+                    </div>
+                    <div class="address2-option" id="address2Option" style="display: none;">
+                        <label>
+                            <input type="checkbox" id="manualAddress2SameLine">
+                            Print Address 2 on same line as Address 1
+                        </label>
+                        <span class="address2-hint">Per USPS, some addresses require this</span>
+                    </div>
+                    <!-- City, State, Postal Code, Country Row -->
+                    <div class="form-row four-col">
+                        <div class="form-group">
+                            <label for="manualCity">City *</label>
+                            <input type="text" id="manualCity" placeholder="New York">
+                        </div>
+                        <div class="form-group">
+                            <label for="manualState">State *</label>
+                            <input type="text" id="manualState" placeholder="NY">
+                        </div>
+                        <div class="form-group">
+                            <label for="manualPostalCode">Postal Code *</label>
+                            <input type="text" id="manualPostalCode" placeholder="10001">
+                        </div>
+                        <div class="form-group">
+                            <label for="manualCountry">Country</label>
+                            <input type="text" id="manualCountry" placeholder="USA">
+                        </div>
+                    </div>
                 </div>
                 <div class="form-buttons">
                     <button class="btn btn-primary" onclick="addManualAddress()">Add Address</button>
@@ -741,6 +909,79 @@
                             Export CSV
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Return Address Section -->
+        <div id="returnSection" class="input-section">
+            <div class="return-address-entry">
+                <h3>Create Return Address Labels</h3>
+                <div class="return-address-info">
+                    Fill in your address once and generate a full sheet of identical labels - perfect for return address labels!
+                </div>
+                <div class="address-form">
+                    <!-- Name Row: Title, First, Last, Suffix -->
+                    <div class="form-row name-row">
+                        <div class="form-group">
+                            <label for="returnTitle">Title</label>
+                            <input type="text" id="returnTitle" placeholder="Hon.">
+                        </div>
+                        <div class="form-group">
+                            <label for="returnFirst">First Name *</label>
+                            <input type="text" id="returnFirst" placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label for="returnLast">Last Name *</label>
+                            <input type="text" id="returnLast" placeholder="Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="returnSuffix">Suffix</label>
+                            <input type="text" id="returnSuffix" placeholder="Jr.">
+                        </div>
+                    </div>
+                    <!-- Address Row -->
+                    <div class="form-group">
+                        <label for="returnAddress1">Address Line 1 *</label>
+                        <input type="text" id="returnAddress1" placeholder="123 Main St">
+                    </div>
+                    <div class="form-group">
+                        <label for="returnAddress2">Address Line 2</label>
+                        <input type="text" id="returnAddress2" placeholder="Apt 4B, Suite 100, etc.">
+                    </div>
+                    <div class="address2-option" id="returnAddress2Option" style="display: none;">
+                        <label>
+                            <input type="checkbox" id="returnAddress2SameLine">
+                            Print Address 2 on same line as Address 1
+                        </label>
+                        <span class="address2-hint">Per USPS, some addresses require this</span>
+                    </div>
+                    <!-- City, State, Postal Code, Country Row -->
+                    <div class="form-row four-col">
+                        <div class="form-group">
+                            <label for="returnCity">City *</label>
+                            <input type="text" id="returnCity" placeholder="New York">
+                        </div>
+                        <div class="form-group">
+                            <label for="returnState">State *</label>
+                            <input type="text" id="returnState" placeholder="NY">
+                        </div>
+                        <div class="form-group">
+                            <label for="returnPostalCode">Postal Code *</label>
+                            <input type="text" id="returnPostalCode" placeholder="10001">
+                        </div>
+                        <div class="form-group">
+                            <label for="returnCountry">Country</label>
+                            <input type="text" id="returnCountry" placeholder="USA">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons" style="margin-top: 15px;">
+                    <button class="btn btn-generate" onclick="generateReturnLabels()" style="flex: 2;">Generate Full Sheet</button>
+                    <button class="btn btn-secondary" onclick="clearReturnForm()">Clear</button>
+                </div>
+                <div id="returnLabelInfo" style="margin-top: 15px; padding: 10px; background: white; border-radius: 6px; font-size: 13px; color: #666;">
+                    Selected template: <strong id="returnTemplateInfo">Avery 8160 - 30 labels per sheet</strong>
                 </div>
             </div>
         </div>
@@ -808,6 +1049,7 @@
 
         const STORAGE_KEY = 'labelMakerAddresses';
         const UPLOAD_STORAGE_KEY = 'labelMakerUploadedAddresses';
+        const RETURN_STORAGE_KEY = 'labelMakerReturnAddress';
 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
@@ -820,13 +1062,56 @@
             updateManualStats();
             updateUploadFullSheetHint();
             updateUploadPreviewStats();
+            updateReturnTemplateInfo();
         });
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadAddressesFromStorage();
             loadUploadedAddressesFromStorage();
+            loadReturnAddressFromStorage();
+            setupAddress2Listeners();
+            updateReturnTemplateInfo();
         });
+
+        // Setup address2 field listeners to show/hide same-line option
+        function setupAddress2Listeners() {
+            const manualAddr2 = document.getElementById('manualAddress2');
+            const returnAddr2 = document.getElementById('returnAddress2');
+
+            if (manualAddr2) {
+                manualAddr2.addEventListener('input', () => {
+                    const option = document.getElementById('address2Option');
+                    option.style.display = manualAddr2.value.trim() ? '' : 'none';
+                });
+            }
+
+            if (returnAddr2) {
+                returnAddr2.addEventListener('input', () => {
+                    const option = document.getElementById('returnAddress2Option');
+                    option.style.display = returnAddr2.value.trim() ? '' : 'none';
+                });
+            }
+        }
+
+        // Update return template info display
+        function updateReturnTemplateInfo() {
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+            const info = document.getElementById('returnTemplateInfo');
+            if (info) {
+                const templateNames = {
+                    '8160': 'Avery 8160',
+                    '5160': 'Avery 5160',
+                    '5162': 'Avery 5162',
+                    '5167': 'Avery 5167 (Return Address)',
+                    '5161': 'Avery 5161',
+                    '5163': 'Avery 5163',
+                    '5164': 'Avery 5164'
+                };
+                info.textContent = `${templateNames[currentTemplate] || currentTemplate} - ${labelsPerPage} labels per sheet`;
+            }
+        }
 
         // Save addresses to localStorage
         function saveAddressesToStorage() {
@@ -887,6 +1172,119 @@
             }
         }
 
+        // Save return address to localStorage
+        function saveReturnAddressToStorage() {
+            const returnAddress = getReturnAddressFromForm();
+            if (returnAddress) {
+                try {
+                    localStorage.setItem(RETURN_STORAGE_KEY, JSON.stringify(returnAddress));
+                } catch (e) {
+                    console.warn('Could not save return address to localStorage:', e);
+                }
+            }
+        }
+
+        // Load return address from localStorage
+        function loadReturnAddressFromStorage() {
+            try {
+                const saved = localStorage.getItem(RETURN_STORAGE_KEY);
+                if (saved) {
+                    const addr = JSON.parse(saved);
+                    document.getElementById('returnTitle').value = addr.title || '';
+                    document.getElementById('returnFirst').value = addr.firstName || '';
+                    document.getElementById('returnLast').value = addr.lastName || '';
+                    document.getElementById('returnSuffix').value = addr.suffix || '';
+                    document.getElementById('returnAddress1').value = addr.address1 || '';
+                    document.getElementById('returnAddress2').value = addr.address2 || '';
+                    document.getElementById('returnAddress2SameLine').checked = addr.address2SameLine || false;
+                    document.getElementById('returnAddress2Option').style.display = addr.address2 ? '' : 'none';
+                    document.getElementById('returnCity').value = addr.city || '';
+                    document.getElementById('returnState').value = addr.state || '';
+                    document.getElementById('returnPostalCode').value = addr.postalCode || '';
+                    document.getElementById('returnCountry').value = addr.country || '';
+                }
+            } catch (e) {
+                console.warn('Could not load return address from localStorage:', e);
+            }
+        }
+
+        // Get return address from form
+        function getReturnAddressFromForm() {
+            const firstName = document.getElementById('returnFirst').value.trim();
+            const lastName = document.getElementById('returnLast').value.trim();
+            const address1 = document.getElementById('returnAddress1').value.trim();
+            const city = document.getElementById('returnCity').value.trim();
+            const state = document.getElementById('returnState').value.trim();
+            const postalCode = document.getElementById('returnPostalCode').value.trim();
+
+            if (!firstName || !lastName || !address1 || !city || !state || !postalCode) {
+                return null;
+            }
+
+            return {
+                title: document.getElementById('returnTitle').value.trim(),
+                firstName,
+                lastName,
+                suffix: document.getElementById('returnSuffix').value.trim(),
+                address1,
+                address2: document.getElementById('returnAddress2').value.trim(),
+                address2SameLine: document.getElementById('returnAddress2SameLine').checked,
+                city,
+                state,
+                postalCode,
+                country: document.getElementById('returnCountry').value.trim()
+            };
+        }
+
+        // Generate return address labels (full sheet)
+        function generateReturnLabels() {
+            const returnAddress = getReturnAddressFromForm();
+            if (!returnAddress) {
+                alert('Please fill in all required fields (marked with *)');
+                return;
+            }
+
+            // Save for next time
+            saveReturnAddressToStorage();
+
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+
+            // Fill entire sheet with the same address
+            const addressesToPrint = Array(labelsPerPage).fill(returnAddress);
+
+            showStatus(`Generating ${labelsPerPage} return address labels...`, 'processing');
+
+            try {
+                const pdf = generateLabelsPDF(addressesToPrint);
+                pdf.save(`${currentTemplate}-return-labels.pdf`);
+
+                showStatus(`✓ Success! Generated ${labelsPerPage} return address labels (1 page). PDF download started.`, 'success');
+            } catch (error) {
+                console.error(error);
+                showStatus('Error generating labels: ' + error.message, 'error');
+            }
+        }
+
+        // Clear return address form
+        function clearReturnForm() {
+            document.getElementById('returnTitle').value = '';
+            document.getElementById('returnFirst').value = '';
+            document.getElementById('returnLast').value = '';
+            document.getElementById('returnSuffix').value = '';
+            document.getElementById('returnAddress1').value = '';
+            document.getElementById('returnAddress2').value = '';
+            document.getElementById('returnAddress2SameLine').checked = false;
+            document.getElementById('returnAddress2Option').style.display = 'none';
+            document.getElementById('returnCity').value = '';
+            document.getElementById('returnState').value = '';
+            document.getElementById('returnPostalCode').value = '';
+            document.getElementById('returnCountry').value = '';
+            try {
+                localStorage.removeItem(RETURN_STORAGE_KEY);
+            } catch (e) {}
+        }
+
         // Clear all saved addresses
         function clearAllAddresses() {
             if (manualAddresses.length === 0) return;
@@ -908,9 +1306,12 @@
             if (tab === 'upload') {
                 buttons[0].classList.add('active');
                 document.getElementById('uploadSection').classList.add('active');
-            } else {
+            } else if (tab === 'manual') {
                 buttons[1].classList.add('active');
                 document.getElementById('manualSection').classList.add('active');
+            } else if (tab === 'return') {
+                buttons[2].classList.add('active');
+                document.getElementById('returnSection').classList.add('active');
             }
         }
 
@@ -968,6 +1369,21 @@
 
         function parseData(content) {
             const lines = content.trim().split('\n');
+            if (lines.length < 2) return [];
+
+            // Parse header to detect format
+            let headerParts;
+            if (lines[0].includes('\t')) {
+                headerParts = lines[0].split('\t').map(p => p.trim().toLowerCase());
+            } else {
+                headerParts = parseCSVLine(lines[0]).map(p => p.toLowerCase());
+            }
+
+            // Detect if new format (has "first name" or similar columns)
+            const isNewFormat = headerParts.some(h =>
+                h.includes('first') || h.includes('last') || h.includes('postal') || h.includes('address 1')
+            );
+
             const dataLines = lines.slice(1);
 
             return dataLines.map(line => {
@@ -978,7 +1394,23 @@
                     parts = parseCSVLine(line);
                 }
 
-                if (parts.length >= 3) {
+                if (isNewFormat && parts.length >= 7) {
+                    // New expanded format: Title, First, Last, Suffix, Address1, Address2, City, State, PostalCode, Country
+                    return {
+                        title: parts[0] || '',
+                        firstName: parts[1] || '',
+                        lastName: parts[2] || '',
+                        suffix: parts[3] || '',
+                        address1: parts[4] || '',
+                        address2: parts[5] || '',
+                        address2SameLine: false,
+                        city: parts[6] || '',
+                        state: parts[7] || '',
+                        postalCode: parts[8] || '',
+                        country: parts[9] || ''
+                    };
+                } else if (parts.length >= 3) {
+                    // Old 3-column format: Fullname, Address, CityStateZip
                     const fullname = parts[0];
                     const address = parts[1];
                     let cityStateZip;
@@ -997,8 +1429,55 @@
             }).filter(item => item !== null);
         }
 
+        // Format address data for label - handles both old and new formats
+        function formatAddressForLabel(addressData) {
+            // Check if this is the new format (has firstName field) or old format
+            if (addressData.firstName !== undefined) {
+                // New format - build name line from components
+                const nameParts = [];
+                if (addressData.title) nameParts.push(addressData.title);
+                if (addressData.firstName) nameParts.push(addressData.firstName);
+                if (addressData.lastName) nameParts.push(addressData.lastName);
+                if (addressData.suffix) nameParts.push(addressData.suffix);
+                const fullname = nameParts.join(' ');
+
+                // Build address lines
+                let addressLine1 = addressData.address1 || '';
+                let addressLine2 = addressData.address2 || '';
+                const address2SameLine = addressData.address2SameLine || false;
+
+                // Build location line
+                const locationParts = [];
+                if (addressData.city) locationParts.push(addressData.city);
+                if (addressData.state) {
+                    if (locationParts.length > 0) {
+                        locationParts[locationParts.length - 1] += ',';
+                    }
+                    locationParts.push(addressData.state);
+                }
+                if (addressData.postalCode) locationParts.push(addressData.postalCode);
+                if (addressData.country && addressData.country.toUpperCase() !== 'USA' && addressData.country.toUpperCase() !== 'US') {
+                    locationParts.push(addressData.country);
+                }
+                const location = locationParts.join(' ');
+
+                return { fullname, addressLine1, addressLine2, address2SameLine, location };
+            } else {
+                // Old format - use as-is for backward compatibility
+                return {
+                    fullname: addressData.fullname || '',
+                    addressLine1: addressData.address || '',
+                    addressLine2: '',
+                    address2SameLine: false,
+                    location: addressData.cityStateZip || ''
+                };
+            }
+        }
+
         function drawLabel(pdf, addressData, x, y, template) {
             if (!addressData) return;
+
+            const formatted = formatAddressForLabel(addressData);
 
             // Adjust font sizes and spacing based on label size
             let nameFontSize, addressFontSize, lineSpacing, startPadding;
@@ -1027,17 +1506,34 @@
             const startX = x + padding;
             let currentY = y + padding + startPadding;
 
+            // Name line
             pdf.setFont("helvetica", "bold");
             pdf.setFontSize(nameFontSize);
-            pdf.text(addressData.fullname, startX, currentY);
+            pdf.text(formatted.fullname, startX, currentY);
             currentY += lineSpacing;
 
             pdf.setFont("helvetica", "normal");
             pdf.setFontSize(addressFontSize);
-            pdf.text(addressData.address, startX, currentY);
-            currentY += lineSpacing;
 
-            pdf.text(addressData.cityStateZip, startX, currentY);
+            // Address line(s)
+            if (formatted.address2SameLine && formatted.addressLine2) {
+                // Address 2 on same line as Address 1
+                pdf.text(formatted.addressLine1 + ' ' + formatted.addressLine2, startX, currentY);
+                currentY += lineSpacing;
+            } else {
+                // Address 1
+                pdf.text(formatted.addressLine1, startX, currentY);
+                currentY += lineSpacing;
+
+                // Address 2 on separate line (if exists)
+                if (formatted.addressLine2) {
+                    pdf.text(formatted.addressLine2, startX, currentY);
+                    currentY += lineSpacing;
+                }
+            }
+
+            // Location line (City, State, Postal Code, Country)
+            pdf.text(formatted.location, startX, currentY);
         }
 
         function generateLabelsPDF(addresses) {
@@ -1125,28 +1621,20 @@
 
         function renderUploadPreviewList() {
             const previewList = document.getElementById('previewList');
-            previewList.innerHTML = previewAddresses.map((addr, index) => `
+            previewList.innerHTML = previewAddresses.map((addr, index) => {
+                const display = getAddressDisplayText(addr);
+                return `
                 <div class="preview-item" id="upload-preview-${index}">
                     <div class="preview-item-content">
                         <div class="preview-item-number">Address #${index + 1}</div>
-                        <div class="preview-item-name">${escapeHtml(addr.fullname)}</div>
-                        <div class="preview-item-details">${escapeHtml(addr.address)}<br>${escapeHtml(addr.cityStateZip)}</div>
+                        <div class="preview-item-name">${escapeHtml(display.name)}</div>
+                        <div class="preview-item-details">${display.address}<br>${escapeHtml(display.location)}</div>
                     </div>
                     <div class="preview-item-actions">
-                        <button class="btn-edit" onclick="editUploadAddress(${index})">Edit</button>
                         <button class="btn-delete" onclick="deleteUploadAddress(${index})">Delete</button>
                     </div>
-                    <div class="edit-form">
-                        <input type="text" id="upload-edit-name-${index}" value="${escapeHtml(addr.fullname)}" placeholder="Full Name">
-                        <input type="text" id="upload-edit-address-${index}" value="${escapeHtml(addr.address)}" placeholder="Street Address">
-                        <input type="text" id="upload-edit-csz-${index}" value="${escapeHtml(addr.cityStateZip)}" placeholder="City, State Zip">
-                        <div class="edit-form-buttons">
-                            <button class="btn-cancel-edit" onclick="cancelUploadEdit(${index})">Cancel</button>
-                            <button class="btn-save" onclick="saveUploadAddress(${index})">Save</button>
-                        </div>
-                    </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             // Update full sheet visibility
             const fullSheetOption = document.getElementById('uploadFullSheetOption');
@@ -1164,34 +1652,6 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
-        }
-
-        function editUploadAddress(index) {
-            document.getElementById(`upload-preview-${index}`).classList.add('editing');
-        }
-
-        function cancelUploadEdit(index) {
-            const item = document.getElementById(`upload-preview-${index}`);
-            item.classList.remove('editing');
-            // Reset input values
-            document.getElementById(`upload-edit-name-${index}`).value = previewAddresses[index].fullname;
-            document.getElementById(`upload-edit-address-${index}`).value = previewAddresses[index].address;
-            document.getElementById(`upload-edit-csz-${index}`).value = previewAddresses[index].cityStateZip;
-        }
-
-        function saveUploadAddress(index) {
-            const name = document.getElementById(`upload-edit-name-${index}`).value.trim();
-            const address = document.getElementById(`upload-edit-address-${index}`).value.trim();
-            const cityStateZip = document.getElementById(`upload-edit-csz-${index}`).value.trim();
-
-            if (!name || !address || !cityStateZip) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            previewAddresses[index] = { fullname: name, address, cityStateZip };
-            saveUploadedAddressesToStorage();
-            renderUploadPreviewList();
         }
 
         function deleteUploadAddress(index) {
@@ -1282,25 +1742,65 @@
 
         // Manual entry functions
         function addManualAddress() {
-            const name = document.getElementById('manualName').value.trim();
-            const address = document.getElementById('manualAddress').value.trim();
-            const cityStateZip = document.getElementById('manualCityStateZip').value.trim();
+            const title = document.getElementById('manualTitle').value.trim();
+            const firstName = document.getElementById('manualFirst').value.trim();
+            const lastName = document.getElementById('manualLast').value.trim();
+            const suffix = document.getElementById('manualSuffix').value.trim();
+            const address1 = document.getElementById('manualAddress1').value.trim();
+            const address2 = document.getElementById('manualAddress2').value.trim();
+            const address2SameLine = document.getElementById('manualAddress2SameLine').checked;
+            const city = document.getElementById('manualCity').value.trim();
+            const state = document.getElementById('manualState').value.trim();
+            const postalCode = document.getElementById('manualPostalCode').value.trim();
+            const country = document.getElementById('manualCountry').value.trim();
 
-            if (!name || !address || !cityStateZip) {
-                alert('Please fill in all fields');
+            // Validate required fields
+            if (!firstName || !lastName || !address1 || !city || !state || !postalCode) {
+                alert('Please fill in all required fields (marked with *)');
                 return;
             }
 
-            manualAddresses.push({ fullname: name, address, cityStateZip });
+            manualAddresses.push({
+                title, firstName, lastName, suffix,
+                address1, address2, address2SameLine,
+                city, state, postalCode, country
+            });
             saveAddressesToStorage();
             updateAddressesList();
             clearForm();
         }
 
         function clearForm() {
-            document.getElementById('manualName').value = '';
-            document.getElementById('manualAddress').value = '';
-            document.getElementById('manualCityStateZip').value = '';
+            document.getElementById('manualTitle').value = '';
+            document.getElementById('manualFirst').value = '';
+            document.getElementById('manualLast').value = '';
+            document.getElementById('manualSuffix').value = '';
+            document.getElementById('manualAddress1').value = '';
+            document.getElementById('manualAddress2').value = '';
+            document.getElementById('manualAddress2SameLine').checked = false;
+            document.getElementById('address2Option').style.display = 'none';
+            document.getElementById('manualCity').value = '';
+            document.getElementById('manualState').value = '';
+            document.getElementById('manualPostalCode').value = '';
+            document.getElementById('manualCountry').value = '';
+        }
+
+        // Helper to get display text for an address (handles both old and new formats)
+        function getAddressDisplayText(addr) {
+            const formatted = formatAddressForLabel(addr);
+            let addressDisplay = formatted.addressLine1;
+            if (formatted.addressLine2) {
+                if (formatted.address2SameLine) {
+                    addressDisplay += ' ' + formatted.addressLine2;
+                } else {
+                    addressDisplay += '<br>' + formatted.addressLine2;
+                }
+            }
+            return {
+                name: formatted.fullname,
+                address: addressDisplay,
+                location: formatted.location
+            };
         }
 
         function updateAddressesList() {
@@ -1329,28 +1829,21 @@
             }
 
             // Render addresses like file upload preview
-            list.innerHTML = manualAddresses.map((addr, index) => `
+            list.innerHTML = manualAddresses.map((addr, index) => {
+                const display = getAddressDisplayText(addr);
+                return `
                 <div class="preview-item" id="manual-item-${index}">
                     <div class="preview-item-content">
                         <div class="preview-item-number">Address #${index + 1}</div>
-                        <div class="preview-item-name">${escapeHtml(addr.fullname)}</div>
-                        <div class="preview-item-details">${escapeHtml(addr.address)}<br>${escapeHtml(addr.cityStateZip)}</div>
+                        <div class="preview-item-name">${escapeHtml(display.name)}</div>
+                        <div class="preview-item-details">${display.address}<br>${escapeHtml(display.location)}</div>
                     </div>
                     <div class="preview-item-actions">
                         <button class="btn-edit" onclick="editManualAddress(${index})">Edit</button>
                         <button class="btn-delete" onclick="deleteManualAddress(${index})">Delete</button>
                     </div>
-                    <div class="edit-form">
-                        <input type="text" id="manual-edit-name-${index}" value="${escapeHtml(addr.fullname)}" placeholder="Full Name">
-                        <input type="text" id="manual-edit-address-${index}" value="${escapeHtml(addr.address)}" placeholder="Street Address">
-                        <input type="text" id="manual-edit-csz-${index}" value="${escapeHtml(addr.cityStateZip)}" placeholder="City, State Zip">
-                        <div class="edit-form-buttons">
-                            <button class="btn-cancel-edit" onclick="cancelManualEdit(${index})">Cancel</button>
-                            <button class="btn-save" onclick="saveManualAddress(${index})">Save</button>
-                        </div>
-                    </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function updateManualStats() {
@@ -1378,32 +1871,52 @@
             }
         }
 
+        // Edit loads address into the form for modification
         function editManualAddress(index) {
-            document.getElementById(`manual-item-${index}`).classList.add('editing');
-        }
+            const addr = manualAddresses[index];
 
-        function cancelManualEdit(index) {
-            const item = document.getElementById(`manual-item-${index}`);
-            item.classList.remove('editing');
-            // Reset input values
-            document.getElementById(`manual-edit-name-${index}`).value = manualAddresses[index].fullname;
-            document.getElementById(`manual-edit-address-${index}`).value = manualAddresses[index].address;
-            document.getElementById(`manual-edit-csz-${index}`).value = manualAddresses[index].cityStateZip;
-        }
-
-        function saveManualAddress(index) {
-            const name = document.getElementById(`manual-edit-name-${index}`).value.trim();
-            const address = document.getElementById(`manual-edit-address-${index}`).value.trim();
-            const cityStateZip = document.getElementById(`manual-edit-csz-${index}`).value.trim();
-
-            if (!name || !address || !cityStateZip) {
-                alert('Please fill in all fields');
-                return;
+            // Handle both old and new format
+            if (addr.firstName !== undefined) {
+                // New format
+                document.getElementById('manualTitle').value = addr.title || '';
+                document.getElementById('manualFirst').value = addr.firstName || '';
+                document.getElementById('manualLast').value = addr.lastName || '';
+                document.getElementById('manualSuffix').value = addr.suffix || '';
+                document.getElementById('manualAddress1').value = addr.address1 || '';
+                document.getElementById('manualAddress2').value = addr.address2 || '';
+                document.getElementById('manualAddress2SameLine').checked = addr.address2SameLine || false;
+                document.getElementById('address2Option').style.display = addr.address2 ? '' : 'none';
+                document.getElementById('manualCity').value = addr.city || '';
+                document.getElementById('manualState').value = addr.state || '';
+                document.getElementById('manualPostalCode').value = addr.postalCode || '';
+                document.getElementById('manualCountry').value = addr.country || '';
+            } else {
+                // Old format - parse as best we can
+                const nameParts = (addr.fullname || '').split(' ');
+                document.getElementById('manualTitle').value = '';
+                document.getElementById('manualFirst').value = nameParts[0] || '';
+                document.getElementById('manualLast').value = nameParts.slice(1).join(' ') || '';
+                document.getElementById('manualSuffix').value = '';
+                document.getElementById('manualAddress1').value = addr.address || '';
+                document.getElementById('manualAddress2').value = '';
+                document.getElementById('manualAddress2SameLine').checked = false;
+                document.getElementById('address2Option').style.display = 'none';
+                // Parse cityStateZip - try to split
+                const csz = addr.cityStateZip || '';
+                document.getElementById('manualCity').value = csz;
+                document.getElementById('manualState').value = '';
+                document.getElementById('manualPostalCode').value = '';
+                document.getElementById('manualCountry').value = '';
             }
 
-            manualAddresses[index] = { fullname: name, address, cityStateZip };
+            // Delete the old entry - user will re-add via form
+            manualAddresses.splice(index, 1);
             saveAddressesToStorage();
             updateAddressesList();
+
+            // Scroll to form
+            document.getElementById('manualSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('manualFirst').focus();
         }
 
         function deleteManualAddress(index) {
@@ -1448,37 +1961,65 @@
             }
         }
 
-        // Sample address data
+        // Sample address data - expanded format
         const SAMPLE_ADDRESSES = [
-            ['Fullname', 'Address', 'City State Zip Code'],
-            ['John Smith', '123 Main St', 'New York NY 10001'],
-            ['Jane Doe', '456 Oak Ave', 'Boston MA 02101'],
-            ['Robert Johnson', '789 Pine Rd', 'Chicago IL 60601'],
-            ['Maria Garcia', '321 Maple Dr', 'Los Angeles CA 90001'],
-            ['David Lee', '654 Cedar Ln', 'Houston TX 77001'],
-            ['Sarah Wilson', '987 Birch St', 'Phoenix AZ 85001'],
-            ['Michael Brown', '147 Elm Ave', 'Philadelphia PA 19101'],
-            ['Emily Davis', '258 Walnut Blvd', 'San Antonio TX 78201'],
-            ['Christopher Martinez', '369 Ash Ct', 'San Diego CA 92101'],
-            ['Jessica Anderson', '741 Oak Circle', 'Dallas TX 75201']
+            ['Title', 'First Name', 'Last Name', 'Suffix', 'Address 1', 'Address 2', 'City', 'State', 'Postal Code', 'Country'],
+            ['', 'John', 'Smith', '', '123 Main St', '', 'New York', 'NY', '10001', 'USA'],
+            ['Dr.', 'Jane', 'Doe', 'PhD', '456 Oak Ave', 'Suite 200', 'Boston', 'MA', '02101', 'USA'],
+            ['', 'Robert', 'Johnson', '', '789 Pine Rd', '', 'Chicago', 'IL', '60601', 'USA'],
+            ['', 'Maria', 'Garcia', '', '321 Maple Dr', 'Apt 4B', 'Los Angeles', 'CA', '90001', 'USA'],
+            ['Hon.', 'David', 'Lee', 'Jr.', '654 Cedar Ln', '', 'Houston', 'TX', '77001', 'USA'],
+            ['', 'Sarah', 'Wilson', '', '987 Birch St', '', 'Phoenix', 'AZ', '85001', 'USA'],
+            ['', 'Michael', 'Brown', '', '147 Elm Ave', 'Unit 12', 'Philadelphia', 'PA', '19101', 'USA'],
+            ['', 'Emily', 'Davis', '', '258 Walnut Blvd', '', 'San Antonio', 'TX', '78201', 'USA'],
+            ['', 'Christopher', 'Martinez', '', '369 Ash Ct', '', 'San Diego', 'CA', '92101', 'USA'],
+            ['', 'Jessica', 'Anderson', '', '741 Oak Circle', '', 'Dallas', 'TX', '75201', 'USA']
         ];
 
         // Helper function to download addresses as CSV
         function downloadAddressesCSV(addresses, filename) {
-            const header = ['Fullname', 'Address', 'City State Zip Code'];
+            const header = ['Title', 'First Name', 'Last Name', 'Suffix', 'Address 1', 'Address 2', 'City', 'State', 'Postal Code', 'Country'];
+
+            const escapeCsvField = (field) => {
+                const str = field || '';
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return '"' + str.replace(/"/g, '""') + '"';
+                }
+                return str;
+            };
+
             const rows = addresses.map(addr => {
-                // Escape fields that contain commas or quotes
-                const escapeCsvField = (field) => {
-                    if (field.includes(',') || field.includes('"') || field.includes('\n')) {
-                        return '"' + field.replace(/"/g, '""') + '"';
-                    }
-                    return field;
-                };
-                return [
-                    escapeCsvField(addr.fullname),
-                    escapeCsvField(addr.address),
-                    escapeCsvField(addr.cityStateZip)
-                ].join(',');
+                // Handle both old and new format
+                if (addr.firstName !== undefined) {
+                    // New format
+                    return [
+                        escapeCsvField(addr.title),
+                        escapeCsvField(addr.firstName),
+                        escapeCsvField(addr.lastName),
+                        escapeCsvField(addr.suffix),
+                        escapeCsvField(addr.address1),
+                        escapeCsvField(addr.address2),
+                        escapeCsvField(addr.city),
+                        escapeCsvField(addr.state),
+                        escapeCsvField(addr.postalCode),
+                        escapeCsvField(addr.country)
+                    ].join(',');
+                } else {
+                    // Old format - convert to new header format as best we can
+                    const nameParts = (addr.fullname || '').split(' ');
+                    return [
+                        '', // title
+                        escapeCsvField(nameParts[0] || ''),
+                        escapeCsvField(nameParts.slice(1).join(' ') || ''),
+                        '', // suffix
+                        escapeCsvField(addr.address),
+                        '', // address2
+                        escapeCsvField(addr.cityStateZip),
+                        '', // state
+                        '', // postal code
+                        ''  // country
+                    ].join(',');
+                }
             });
 
             const csvContent = [header.join(','), ...rows].join('\n');
@@ -1527,14 +2068,20 @@
             // Create worksheet from array data
             const ws = XLSX.utils.aoa_to_sheet(SAMPLE_ADDRESSES);
 
-            // Set column widths
+            // Set column widths for new 10-column format
             ws['!cols'] = [
-                { wch: 25 },  // Fullname column
-                { wch: 30 },  // Address column
-                { wch: 30 }   // City State Zip column
+                { wch: 8 },   // Title
+                { wch: 15 },  // First Name
+                { wch: 15 },  // Last Name
+                { wch: 8 },   // Suffix
+                { wch: 25 },  // Address 1
+                { wch: 15 },  // Address 2
+                { wch: 15 },  // City
+                { wch: 8 },   // State
+                { wch: 12 },  // Postal Code
+                { wch: 10 }   // Country
             ];
 
-            // Make header row bold (if possible - depends on Excel support)
             // Add worksheet to workbook
             XLSX.utils.book_append_sheet(wb, ws, 'Addresses');
 

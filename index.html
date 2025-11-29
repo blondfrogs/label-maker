@@ -718,12 +718,74 @@
             color: #155724;
         }
 
+        /* Region Toggle Styles */
+        .region-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 12px 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border: 1px solid #d0d8f0;
+        }
+
+        .region-selector label {
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .region-toggle {
+            display: flex;
+            gap: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid #667eea;
+        }
+
+        .region-toggle button {
+            padding: 8px 16px;
+            border: none;
+            background: white;
+            color: #667eea;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .region-toggle button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .region-toggle button:hover:not(.active) {
+            background: #f0f2ff;
+        }
+
+        .region-info {
+            margin-left: auto;
+            font-size: 12px;
+            color: #666;
+        }
+
         @media (max-width: 600px) {
             .form-row.two-col,
             .form-row.three-col,
             .form-row.four-col,
             .form-row.name-row {
                 grid-template-columns: 1fr;
+            }
+
+            .region-selector {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .region-info {
+                margin-left: 0;
             }
         }
 
@@ -734,16 +796,21 @@
         <h1>Free Label Maker for Addresses</h1>
         <p class="subtitle">Generate professional PDF address labels - Works with Avery & compatible brands</p>
 
+        <!-- Region Selector -->
+        <div class="region-selector">
+            <label>Region:</label>
+            <div class="region-toggle">
+                <button id="regionUS" class="active" onclick="setRegion('US')">US (Letter)</button>
+                <button id="regionUK" onclick="setRegion('UK')">UK/EU (A4)</button>
+            </div>
+            <span class="region-info" id="regionInfo">Paper: 8.5" × 11" (Letter)</span>
+        </div>
+
         <!-- Template Selector -->
         <div class="template-selector">
             <label for="templateSelect">Select Label Template:</label>
             <select id="templateSelect">
-                <option value="8160">Avery 8160/5160 - Standard Address (1" × 2⅝", 30 per sheet) ⭐ Most Popular</option>
-                <option value="5162">Avery 5162/8162 - Wide Address (1⅓" × 4", 14 per sheet)</option>
-                <option value="5167">Avery 5167/8167 - Return Address (½" × 1¾", 80 per sheet)</option>
-                <option value="5161">Avery 5161/8161 - Large Address (1" × 4", 20 per sheet)</option>
-                <option value="5163">Avery 5163/8163 - Shipping Labels (2" × 4", 10 per sheet)</option>
-                <option value="5164">Avery 5164/8164 - Large Shipping (3⅓" × 4", 6 per sheet)</option>
+                <!-- Options populated by JavaScript based on region -->
             </select>
         </div>
 
@@ -770,13 +837,8 @@
                     <a href="#" class="download-example" onclick="downloadExampleExcel(); return false;">📊 Download example.xlsx</a>
                 </div>
                 <p style="margin-top: 15px;">Your CSV file can use either format:</p>
-                <div class="format-example" style="font-size: 11px;">
-                    <strong>Expanded format (recommended):</strong><br>
-                    Title,First Name,Last Name,Suffix,Address 1,Address 2,City,State,Postal Code,Country<br>
-                    Dr.,Jane,Doe,PhD,456 Oak Ave,Suite 200,Boston,MA,02101,USA<br><br>
-                    <strong>Simple format (also works):</strong><br>
-                    Fullname,Address,City State Zip<br>
-                    John Smith,123 Main St,New York NY 10001
+                <div class="format-example" style="font-size: 11px;" id="formatExample">
+                    <!-- Content updated by JavaScript based on region -->
                 </div>
                 <p style="margin-top: 10px; font-size: 12px; color: #888;">
                     💡 <strong>Tip:</strong> Download the Excel file, edit it with your addresses, then save as CSV to upload here.
@@ -793,6 +855,69 @@
                     </div>
                 </div>
                 <div id="previewList" class="preview-list"></div>
+
+                <!-- Inline Edit Form for Upload Section -->
+                <div id="uploadEditForm" class="manual-entry" style="display: none; margin-top: 15px; border-top: 2px solid #667eea; padding-top: 15px;">
+                    <h3 id="uploadFormTitle">Edit Address</h3>
+                    <div class="address-form">
+                        <div class="form-row name-row">
+                            <div class="form-group">
+                                <label for="uploadEditTitle">Title</label>
+                                <input type="text" id="uploadEditTitle" placeholder="Dr., Mr., Mrs.">
+                            </div>
+                            <div class="form-group">
+                                <label for="uploadEditFirst">First Name *</label>
+                                <input type="text" id="uploadEditFirst" placeholder="Jane">
+                            </div>
+                            <div class="form-group">
+                                <label for="uploadEditLast">Last Name *</label>
+                                <input type="text" id="uploadEditLast" placeholder="Smith">
+                            </div>
+                            <div class="form-group">
+                                <label for="uploadEditSuffix">Suffix</label>
+                                <input type="text" id="uploadEditSuffix" placeholder="Jr., PhD">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="uploadEditAddress1">Address Line 1 *</label>
+                            <input type="text" id="uploadEditAddress1" placeholder="123 Main Street">
+                        </div>
+                        <div class="form-group">
+                            <label for="uploadEditAddress2">Address Line 2</label>
+                            <input type="text" id="uploadEditAddress2" placeholder="Apt 4B, Suite 100, etc.">
+                        </div>
+                        <div class="address2-option" id="uploadEditAddress2Option" style="display: none;">
+                            <label>
+                                <input type="checkbox" id="uploadEditAddress2SameLine">
+                                Print Address 2 on same line as Address 1
+                            </label>
+                            <span class="address2-hint" id="uploadEditAddress2Hint">Per USPS, some addresses require this</span>
+                        </div>
+                        <div class="form-row four-col">
+                            <div class="form-group">
+                                <label for="uploadEditCity" id="uploadEditCityLabel">City *</label>
+                                <input type="text" id="uploadEditCity" placeholder="New York">
+                            </div>
+                            <div class="form-group">
+                                <label for="uploadEditState" id="uploadEditStateLabel">State *</label>
+                                <input type="text" id="uploadEditState" placeholder="NY">
+                            </div>
+                            <div class="form-group">
+                                <label for="uploadEditPostalCode" id="uploadEditPostalLabel">Postal Code *</label>
+                                <input type="text" id="uploadEditPostalCode" placeholder="10001">
+                            </div>
+                            <div class="form-group">
+                                <label for="uploadEditCountry">Country</label>
+                                <input type="text" id="uploadEditCountry" placeholder="USA">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button id="uploadFormButton" class="btn btn-primary" onclick="saveAddress()">Save Address</button>
+                        <button class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+                    </div>
+                </div>
+
                 <div id="uploadFullSheetOption" class="full-sheet-option" style="display: none;">
                     <label>
                         <input type="checkbox" id="uploadFullSheetCheckbox" onchange="updateUploadPreviewStats()">
@@ -806,13 +931,23 @@
                     <button class="btn btn-cancel" onclick="cancelPreview()">Cancel</button>
                     <button class="btn btn-generate" onclick="generateFromPreview()">Generate PDF</button>
                 </div>
+
+                <div class="export-csv-section">
+                    <div class="export-csv-info">
+                        <strong>Export Updated List</strong>
+                        <p>Made edits? Export the updated addresses to a CSV file.</p>
+                    </div>
+                    <button class="export-btn" onclick="exportUploadedAddressesCSV()">
+                        Export CSV
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Manual Entry Section -->
         <div id="manualSection" class="input-section">
             <div class="manual-entry">
-                <h3>Add Address</h3>
+                <h3 id="manualFormTitle">Add Address</h3>
                 <div class="address-form">
                     <!-- Name Row: Title, First, Last, Suffix -->
                     <div class="form-row name-row">
@@ -847,20 +982,20 @@
                             <input type="checkbox" id="manualAddress2SameLine">
                             Print Address 2 on same line as Address 1
                         </label>
-                        <span class="address2-hint">Per USPS, some addresses require this</span>
+                        <span class="address2-hint" id="manualAddress2Hint">Per USPS, some addresses require this</span>
                     </div>
                     <!-- City, State, Postal Code, Country Row -->
                     <div class="form-row four-col">
                         <div class="form-group">
-                            <label for="manualCity">City *</label>
+                            <label for="manualCity" id="manualCityLabel">City *</label>
                             <input type="text" id="manualCity" placeholder="New York">
                         </div>
                         <div class="form-group">
-                            <label for="manualState">State *</label>
+                            <label for="manualState" id="manualStateLabel">State *</label>
                             <input type="text" id="manualState" placeholder="NY">
                         </div>
                         <div class="form-group">
-                            <label for="manualPostalCode">Postal Code *</label>
+                            <label for="manualPostalCode" id="manualPostalLabel">Postal Code *</label>
                             <input type="text" id="manualPostalCode" placeholder="10001">
                         </div>
                         <div class="form-group">
@@ -870,8 +1005,8 @@
                     </div>
                 </div>
                 <div class="form-buttons">
-                    <button class="btn btn-primary" onclick="addManualAddress()">Add Address</button>
-                    <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                    <button id="manualFormButton" class="btn btn-primary" onclick="saveAddress()">Add Address</button>
+                    <button id="manualClearButton" class="btn btn-secondary" onclick="cancelEdit()">Clear</button>
                 </div>
 
                 <!-- Addresses List Section (like file upload preview) -->
@@ -954,20 +1089,20 @@
                             <input type="checkbox" id="returnAddress2SameLine">
                             Print Address 2 on same line as Address 1
                         </label>
-                        <span class="address2-hint">Per USPS, some addresses require this</span>
+                        <span class="address2-hint" id="returnAddress2Hint">Per USPS, some addresses require this</span>
                     </div>
                     <!-- City, State, Postal Code, Country Row -->
                     <div class="form-row four-col">
                         <div class="form-group">
-                            <label for="returnCity">City *</label>
+                            <label for="returnCity" id="returnCityLabel">City *</label>
                             <input type="text" id="returnCity" placeholder="New York">
                         </div>
                         <div class="form-group">
-                            <label for="returnState">State *</label>
+                            <label for="returnState" id="returnStateLabel">State *</label>
                             <input type="text" id="returnState" placeholder="NY">
                         </div>
                         <div class="form-group">
-                            <label for="returnPostalCode">Postal Code *</label>
+                            <label for="returnPostalCode" id="returnPostalLabel">Postal Code *</label>
                             <input type="text" id="returnPostalCode" placeholder="10001">
                         </div>
                         <div class="form-group">
@@ -1033,23 +1168,47 @@
     <script>
         // Label templates configuration - All measurements in inches
         // Format: { width, height, topMargin, sideMargin, hPitch (horizontal spacing), vPitch (vertical spacing), cols, rows }
-        const TEMPLATES = {
-            '8160': { width: 2.625, height: 1.0, topMargin: 0.5, sideMargin: 0.19, hPitch: 2.75, vPitch: 1.0, cols: 3, rows: 10 },
-            '5160': { width: 2.625, height: 1.0, topMargin: 0.5, sideMargin: 0.19, hPitch: 2.75, vPitch: 1.0, cols: 3, rows: 10 },
-            '5162': { width: 4.0, height: 1.33, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 1.33, cols: 2, rows: 7 },
-            '5167': { width: 1.75, height: 0.5, topMargin: 0.5, sideMargin: 0.28, hPitch: 2.06, vPitch: 0.5, cols: 4, rows: 20 },
-            '5161': { width: 4.0, height: 1.0, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 1.0, cols: 2, rows: 10 },
-            '5163': { width: 4.0, height: 2.0, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 2.0, cols: 2, rows: 5 },
-            '5164': { width: 4.0, height: 3.33, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 3.33, cols: 2, rows: 3 }
+
+        // US Templates (Letter paper: 8.5" x 11")
+        const US_TEMPLATES = {
+            '8160': { width: 2.625, height: 1.0, topMargin: 0.5, sideMargin: 0.19, hPitch: 2.75, vPitch: 1.0, cols: 3, rows: 10, name: 'Avery 8160/5160 - Standard Address', desc: '1" × 2⅝", 30 per sheet', popular: true },
+            '5160': { width: 2.625, height: 1.0, topMargin: 0.5, sideMargin: 0.19, hPitch: 2.75, vPitch: 1.0, cols: 3, rows: 10, name: 'Avery 5160 - Standard Address', desc: '1" × 2⅝", 30 per sheet' },
+            '5162': { width: 4.0, height: 1.33, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 1.33, cols: 2, rows: 7, name: 'Avery 5162/8162 - Wide Address', desc: '1⅓" × 4", 14 per sheet' },
+            '5167': { width: 1.75, height: 0.5, topMargin: 0.5, sideMargin: 0.28, hPitch: 2.06, vPitch: 0.5, cols: 4, rows: 20, name: 'Avery 5167/8167 - Return Address', desc: '½" × 1¾", 80 per sheet' },
+            '5161': { width: 4.0, height: 1.0, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 1.0, cols: 2, rows: 10, name: 'Avery 5161/8161 - Large Address', desc: '1" × 4", 20 per sheet' },
+            '5163': { width: 4.0, height: 2.0, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 2.0, cols: 2, rows: 5, name: 'Avery 5163/8163 - Shipping Labels', desc: '2" × 4", 10 per sheet' },
+            '5164': { width: 4.0, height: 3.33, topMargin: 0.5, sideMargin: 0.16, hPitch: 4.19, vPitch: 3.33, cols: 2, rows: 3, name: 'Avery 5164/8164 - Large Shipping', desc: '3⅓" × 4", 6 per sheet' }
         };
 
+        // UK/EU Templates (A4 paper: 210mm x 297mm = 8.27" x 11.69")
+        // Measurements converted from mm to inches (mm / 25.4)
+        const UK_TEMPLATES = {
+            'J8160': { width: 2.5, height: 1.5, topMargin: 0.59, sideMargin: 0.3, hPitch: 2.6, vPitch: 1.5, cols: 3, rows: 7, name: 'Avery J8160/L7160 - Standard Address', desc: '63.5 × 38.1mm, 21 per sheet', popular: true },
+            'J8159': { width: 2.5, height: 1.335, topMargin: 0.52, sideMargin: 0.3, hPitch: 2.6, vPitch: 1.335, cols: 3, rows: 8, name: 'Avery J8159/L7159 - Address Labels', desc: '63.5 × 33.9mm, 24 per sheet' },
+            'J8161': { width: 2.5, height: 1.81, topMargin: 0.55, sideMargin: 0.3, hPitch: 2.6, vPitch: 1.81, cols: 3, rows: 6, name: 'Avery J8161/L7161 - Large Address', desc: '63.5 × 46mm, 18 per sheet' },
+            'J8162': { width: 3.94, height: 1.335, topMargin: 0.52, sideMargin: 0.3, hPitch: 4.04, vPitch: 1.335, cols: 2, rows: 8, name: 'Avery J8162/L7162 - Wide Address', desc: '100 × 33.9mm, 16 per sheet' },
+            'J8163': { width: 3.94, height: 1.5, topMargin: 0.59, sideMargin: 0.3, hPitch: 4.04, vPitch: 1.5, cols: 2, rows: 7, name: 'Avery J8163/L7163 - Parcel Labels', desc: '100 × 38.1mm, 14 per sheet' },
+            'J8165': { width: 3.94, height: 2.68, topMargin: 0.52, sideMargin: 0.3, hPitch: 4.04, vPitch: 2.68, cols: 2, rows: 4, name: 'Avery J8165/L7165 - Parcel Labels', desc: '100 × 68mm, 8 per sheet' },
+            'J8166': { width: 3.94, height: 3.62, topMargin: 0.52, sideMargin: 0.3, hPitch: 4.04, vPitch: 3.62, cols: 2, rows: 3, name: 'Avery J8166/L7166 - Shipping Labels', desc: '100 × 92mm, 6 per sheet' },
+            'J8167': { width: 7.87, height: 5.51, topMargin: 0.52, sideMargin: 0.2, hPitch: 7.87, vPitch: 5.51, cols: 1, rows: 2, name: 'Avery J8167/L7167 - Large Shipping', desc: '200 × 140mm, 2 per sheet' }
+        };
+
+        // Combined templates object (will be updated based on region)
+        let TEMPLATES = { ...US_TEMPLATES };
+        let currentRegion = 'US';
         let currentTemplate = '8160';
         let manualAddresses = [];
         let previewAddresses = [];
 
+        // Editing state
+        let isEditing = false;
+        let editingIndex = -1;
+        let editingSource = null; // 'manual' or 'upload'
+
         const STORAGE_KEY = 'labelMakerAddresses';
         const UPLOAD_STORAGE_KEY = 'labelMakerUploadedAddresses';
         const RETURN_STORAGE_KEY = 'labelMakerReturnAddress';
+        const REGION_STORAGE_KEY = 'labelMakerRegion';
 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
@@ -1065,8 +1224,161 @@
             updateReturnTemplateInfo();
         });
 
+        // Region switching function
+        function setRegion(region) {
+            currentRegion = region;
+
+            // Update button styles
+            document.getElementById('regionUS').classList.toggle('active', region === 'US');
+            document.getElementById('regionUK').classList.toggle('active', region === 'UK');
+
+            // Update region info text
+            const regionInfo = document.getElementById('regionInfo');
+            if (region === 'US') {
+                regionInfo.textContent = 'Paper: 8.5" × 11" (Letter)';
+                TEMPLATES = { ...US_TEMPLATES };
+                currentTemplate = '8160'; // Default US template
+            } else {
+                regionInfo.textContent = 'Paper: 210 × 297mm (A4)';
+                TEMPLATES = { ...UK_TEMPLATES };
+                currentTemplate = 'J8160'; // Default UK template
+            }
+
+            // Update template dropdown
+            updateTemplateDropdown();
+
+            // Save preference
+            saveRegionToStorage();
+
+            // Update all displays
+            updateManualFullSheetHint();
+            updateManualStats();
+            updateUploadFullSheetHint();
+            updateUploadPreviewStats();
+            updateReturnTemplateInfo();
+            updatePrintingInstructions();
+            updateFormLabels();
+            updateUploadEditFormLabels();
+            updateFormatExample();
+        }
+
+        // Update template dropdown based on current region
+        function updateTemplateDropdown() {
+            const select = document.getElementById('templateSelect');
+            select.innerHTML = '';
+
+            Object.keys(TEMPLATES).forEach(key => {
+                const t = TEMPLATES[key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `${t.name} (${t.desc})${t.popular ? ' ⭐ Most Popular' : ''}`;
+                select.appendChild(option);
+            });
+
+            select.value = currentTemplate;
+        }
+
+        // Update printing instructions based on region
+        function updatePrintingInstructions() {
+            const instructions = document.querySelector('.instructions ul');
+            if (instructions) {
+                const paperSize = currentRegion === 'US' ? 'US Letter (8.5" × 11")' : 'A4 (210 × 297mm)';
+                instructions.innerHTML = `
+                    <li><strong>Print Scale:</strong> Set to <strong>100%</strong> or "Actual Size" (NOT "Fit to Page")</li>
+                    <li><strong>Paper Size:</strong> ${paperSize}</li>
+                    <li><strong>Test First:</strong> Print one page on regular paper and hold it up to the light against your label sheet to check alignment</li>
+                    <li><strong>No Margins Override:</strong> Use the PDF's built-in margins</li>
+                `;
+            }
+        }
+
+        // Update form labels and placeholders based on region
+        function updateFormLabels() {
+            const isUS = currentRegion === 'US';
+
+            // Define region-specific labels and placeholders
+            const config = isUS ? {
+                stateLabel: 'State *',
+                statePlaceholder: 'NY',
+                postalLabel: 'ZIP Code *',
+                postalPlaceholder: '10001',
+                cityPlaceholder: 'New York',
+                countryPlaceholder: 'USA',
+                address2Hint: 'Per USPS, some addresses require this'
+            } : {
+                stateLabel: 'County/Region',
+                statePlaceholder: 'Greater London',
+                postalLabel: 'Postcode *',
+                postalPlaceholder: 'SW1A 1AA',
+                cityPlaceholder: 'London',
+                countryPlaceholder: 'United Kingdom',
+                address2Hint: 'Some addresses may require this on one line'
+            };
+
+            // Update Manual Entry form
+            const manualStateLabel = document.getElementById('manualStateLabel');
+            const manualPostalLabel = document.getElementById('manualPostalLabel');
+            const manualState = document.getElementById('manualState');
+            const manualPostalCode = document.getElementById('manualPostalCode');
+            const manualCity = document.getElementById('manualCity');
+            const manualCountry = document.getElementById('manualCountry');
+            const manualAddress2Hint = document.getElementById('manualAddress2Hint');
+
+            if (manualStateLabel) manualStateLabel.textContent = config.stateLabel;
+            if (manualPostalLabel) manualPostalLabel.textContent = config.postalLabel;
+            if (manualState) manualState.placeholder = config.statePlaceholder;
+            if (manualPostalCode) manualPostalCode.placeholder = config.postalPlaceholder;
+            if (manualCity) manualCity.placeholder = config.cityPlaceholder;
+            if (manualCountry) manualCountry.placeholder = config.countryPlaceholder;
+            if (manualAddress2Hint) manualAddress2Hint.textContent = config.address2Hint;
+
+            // Update Return Address form
+            const returnStateLabel = document.getElementById('returnStateLabel');
+            const returnPostalLabel = document.getElementById('returnPostalLabel');
+            const returnState = document.getElementById('returnState');
+            const returnPostalCode = document.getElementById('returnPostalCode');
+            const returnCity = document.getElementById('returnCity');
+            const returnCountry = document.getElementById('returnCountry');
+            const returnAddress2Hint = document.getElementById('returnAddress2Hint');
+
+            if (returnStateLabel) returnStateLabel.textContent = config.stateLabel;
+            if (returnPostalLabel) returnPostalLabel.textContent = config.postalLabel;
+            if (returnState) returnState.placeholder = config.statePlaceholder;
+            if (returnPostalCode) returnPostalCode.placeholder = config.postalPlaceholder;
+            if (returnCity) returnCity.placeholder = config.cityPlaceholder;
+            if (returnCountry) returnCountry.placeholder = config.countryPlaceholder;
+            if (returnAddress2Hint) returnAddress2Hint.textContent = config.address2Hint;
+        }
+
+        // Save region preference to localStorage
+        function saveRegionToStorage() {
+            try {
+                localStorage.setItem(REGION_STORAGE_KEY, currentRegion);
+            } catch (e) {
+                console.warn('Could not save region to localStorage:', e);
+            }
+        }
+
+        // Load region preference from localStorage
+        function loadRegionFromStorage() {
+            try {
+                const saved = localStorage.getItem(REGION_STORAGE_KEY);
+                if (saved && (saved === 'US' || saved === 'UK')) {
+                    setRegion(saved);
+                }
+            } catch (e) {
+                console.warn('Could not load region from localStorage:', e);
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize templates dropdown, form labels, and format example (before loading region which may change them)
+            updateTemplateDropdown();
+            updateFormLabels();
+            updateUploadEditFormLabels();
+            updateFormatExample();
+            loadRegionFromStorage();
             loadAddressesFromStorage();
             loadUploadedAddressesFromStorage();
             loadReturnAddressFromStorage();
@@ -1078,6 +1390,7 @@
         function setupAddress2Listeners() {
             const manualAddr2 = document.getElementById('manualAddress2');
             const returnAddr2 = document.getElementById('returnAddress2');
+            const uploadEditAddr2 = document.getElementById('uploadEditAddress2');
 
             if (manualAddr2) {
                 manualAddr2.addEventListener('input', () => {
@@ -1092,24 +1405,25 @@
                     option.style.display = returnAddr2.value.trim() ? '' : 'none';
                 });
             }
+
+            if (uploadEditAddr2) {
+                uploadEditAddr2.addEventListener('input', () => {
+                    const option = document.getElementById('uploadEditAddress2Option');
+                    option.style.display = uploadEditAddr2.value.trim() ? '' : 'none';
+                });
+            }
         }
 
         // Update return template info display
         function updateReturnTemplateInfo() {
             const template = TEMPLATES[currentTemplate];
+            if (!template) return;
             const labelsPerPage = template.cols * template.rows;
             const info = document.getElementById('returnTemplateInfo');
             if (info) {
-                const templateNames = {
-                    '8160': 'Avery 8160',
-                    '5160': 'Avery 5160',
-                    '5162': 'Avery 5162',
-                    '5167': 'Avery 5167 (Return Address)',
-                    '5161': 'Avery 5161',
-                    '5163': 'Avery 5163',
-                    '5164': 'Avery 5164'
-                };
-                info.textContent = `${templateNames[currentTemplate] || currentTemplate} - ${labelsPerPage} labels per sheet`;
+                // Use the name from the template object, or fall back to the template key
+                const templateName = template.name ? template.name.split(' - ')[0] : currentTemplate;
+                info.textContent = `${templateName} - ${labelsPerPage} labels per sheet`;
             }
         }
 
@@ -1217,7 +1531,9 @@
             const state = document.getElementById('returnState').value.trim();
             const postalCode = document.getElementById('returnPostalCode').value.trim();
 
-            if (!firstName || !lastName || !address1 || !city || !state || !postalCode) {
+            // State/County is optional for UK/EU, required for US
+            const stateRequired = currentRegion === 'US';
+            if (!firstName || !lastName || !address1 || !city || !postalCode || (stateRequired && !state)) {
                 return null;
             }
 
@@ -1379,6 +1695,23 @@
                 headerParts = parseCSVLine(lines[0]).map(p => p.toLowerCase());
             }
 
+            // Detect region from headers and auto-switch if needed
+            const hasUKHeaders = headerParts.some(h =>
+                h.includes('county') || h.includes('region') || h === 'postcode'
+            );
+            const hasUSHeaders = headerParts.some(h =>
+                h === 'state' || h.includes('zip')
+            );
+
+            // Auto-switch region if we detect a clear match
+            if (hasUKHeaders && !hasUSHeaders && currentRegion === 'US') {
+                setRegion('UK');
+                showStatus('Detected UK/EU format - automatically switched to A4 templates.', 'success');
+            } else if (hasUSHeaders && !hasUKHeaders && currentRegion === 'UK') {
+                setRegion('US');
+                showStatus('Detected US format - automatically switched to Letter templates.', 'success');
+            }
+
             // Detect if new format (has "first name" or similar columns)
             const isNewFormat = headerParts.some(h =>
                 h.includes('first') || h.includes('last') || h.includes('postal') || h.includes('address 1')
@@ -1446,22 +1779,28 @@
                 let addressLine2 = addressData.address2 || '';
                 const address2SameLine = addressData.address2SameLine || false;
 
-                // Build location line
+                // Store individual components for region-specific formatting
+                const city = addressData.city || '';
+                const state = addressData.state || '';
+                const postalCode = addressData.postalCode || '';
+                const country = addressData.country || '';
+
+                // Build US-style location line (City, State ZIP)
                 const locationParts = [];
-                if (addressData.city) locationParts.push(addressData.city);
-                if (addressData.state) {
+                if (city) locationParts.push(city);
+                if (state) {
                     if (locationParts.length > 0) {
                         locationParts[locationParts.length - 1] += ',';
                     }
-                    locationParts.push(addressData.state);
+                    locationParts.push(state);
                 }
-                if (addressData.postalCode) locationParts.push(addressData.postalCode);
-                if (addressData.country && addressData.country.toUpperCase() !== 'USA' && addressData.country.toUpperCase() !== 'US') {
-                    locationParts.push(addressData.country);
+                if (postalCode) locationParts.push(postalCode);
+                if (country && country.toUpperCase() !== 'USA' && country.toUpperCase() !== 'US') {
+                    locationParts.push(country);
                 }
                 const location = locationParts.join(' ');
 
-                return { fullname, addressLine1, addressLine2, address2SameLine, location };
+                return { fullname, addressLine1, addressLine2, address2SameLine, location, city, state, postalCode, country };
             } else {
                 // Old format - use as-is for backward compatibility
                 return {
@@ -1469,7 +1808,11 @@
                     addressLine1: addressData.address || '',
                     addressLine2: '',
                     address2SameLine: false,
-                    location: addressData.cityStateZip || ''
+                    location: addressData.cityStateZip || '',
+                    city: '',
+                    state: '',
+                    postalCode: '',
+                    country: ''
                 };
             }
         }
@@ -1479,61 +1822,120 @@
 
             const formatted = formatAddressForLabel(addressData);
 
-            // Adjust font sizes and spacing based on label size
-            let nameFontSize, addressFontSize, lineSpacing, startPadding;
+            // Build all address lines
+            const addressLines = [];
+            addressLines.push({ text: formatted.fullname, isBold: true });
 
-            if (template.height <= 0.5) {
-                // Small labels like 5167 (return address)
-                nameFontSize = 7;
-                addressFontSize = 6;
-                lineSpacing = 0.08;
-                startPadding = 0.08;
-            } else if (template.height <= 1.0) {
-                // Standard address labels
-                nameFontSize = 11;
-                addressFontSize = 10;
-                lineSpacing = 0.15;
-                startPadding = 0.25;
-            } else {
-                // Large shipping labels
-                nameFontSize = 13;
-                addressFontSize = 11;
-                lineSpacing = 0.18;
-                startPadding = 0.3;
-            }
-
-            const padding = 0.08;
-            const startX = x + padding;
-            let currentY = y + padding + startPadding;
-
-            // Name line
-            pdf.setFont("helvetica", "bold");
-            pdf.setFontSize(nameFontSize);
-            pdf.text(formatted.fullname, startX, currentY);
-            currentY += lineSpacing;
-
-            pdf.setFont("helvetica", "normal");
-            pdf.setFontSize(addressFontSize);
-
-            // Address line(s)
             if (formatted.address2SameLine && formatted.addressLine2) {
-                // Address 2 on same line as Address 1
-                pdf.text(formatted.addressLine1 + ' ' + formatted.addressLine2, startX, currentY);
-                currentY += lineSpacing;
+                addressLines.push({ text: formatted.addressLine1 + ' ' + formatted.addressLine2, isBold: false });
             } else {
-                // Address 1
-                pdf.text(formatted.addressLine1, startX, currentY);
-                currentY += lineSpacing;
-
-                // Address 2 on separate line (if exists)
+                addressLines.push({ text: formatted.addressLine1, isBold: false });
                 if (formatted.addressLine2) {
-                    pdf.text(formatted.addressLine2, startX, currentY);
-                    currentY += lineSpacing;
+                    addressLines.push({ text: formatted.addressLine2, isBold: false });
                 }
             }
 
-            // Location line (City, State, Postal Code, Country)
-            pdf.text(formatted.location, startX, currentY);
+            // For UK/international: City and Postcode on separate lines per Royal Mail guidelines
+            // For US: City, State ZIP on one line per USPS guidelines
+            if (currentRegion === 'UK') {
+                // UK format per Royal Mail:
+                // - POST TOWN (uppercase) - county is optional but can be included
+                // - POSTCODE (uppercase, on its own line)
+                // - COUNTRY (uppercase, only if international)
+                let cityLine = '';
+                if (formatted.city) {
+                    cityLine = formatted.city.toUpperCase();
+                }
+                // Add county/region if provided (Royal Mail says optional but some prefer it)
+                if (formatted.state) {
+                    cityLine += (cityLine ? ', ' : '') + formatted.state;
+                }
+                if (cityLine) {
+                    addressLines.push({ text: cityLine, isBold: false });
+                }
+                if (formatted.postalCode) {
+                    addressLines.push({ text: formatted.postalCode.toUpperCase(), isBold: false });
+                }
+                // Only show country if it's NOT United Kingdom (for international mail TO UK)
+                if (formatted.country &&
+                    formatted.country.toUpperCase() !== 'UNITED KINGDOM' &&
+                    formatted.country.toUpperCase() !== 'UK' &&
+                    formatted.country.toUpperCase() !== 'GB' &&
+                    formatted.country.toUpperCase() !== 'GREAT BRITAIN') {
+                    addressLines.push({ text: formatted.country.toUpperCase(), isBold: false });
+                }
+            } else {
+                // US format per USPS: CITY, STATE ZIP on one line
+                addressLines.push({ text: formatted.location, isBold: false });
+            }
+
+            // Filter out empty lines
+            const filteredLines = addressLines.filter(line => line.text && line.text.trim());
+
+            // Base font sizes based on label size
+            let baseFontSize, minFontSize, lineSpacingRatio, startPadding;
+
+            if (template.height <= 0.5) {
+                baseFontSize = 7;
+                minFontSize = 5;
+                lineSpacingRatio = 1.15;
+                startPadding = 0.06;
+            } else if (template.height <= 1.0) {
+                baseFontSize = 10;
+                minFontSize = 7;
+                lineSpacingRatio = 1.3;
+                startPadding = 0.15;
+            } else if (template.height <= 1.5) {
+                baseFontSize = 11;
+                minFontSize = 8;
+                lineSpacingRatio = 1.3;
+                startPadding = 0.2;
+            } else {
+                baseFontSize = 12;
+                minFontSize = 9;
+                lineSpacingRatio = 1.35;
+                startPadding = 0.25;
+            }
+
+            const padding = 0.06;
+            const maxWidth = template.width - (padding * 2);
+            const maxHeight = template.height - (padding * 2) - startPadding;
+
+            // Auto-fit: Find optimal font size that fits all content
+            let fontSize = baseFontSize;
+            let totalHeight;
+
+            do {
+                pdf.setFontSize(fontSize);
+                const lineSpacing = (fontSize / 72) * lineSpacingRatio; // Convert pt to inches
+                totalHeight = 0;
+
+                for (const line of filteredLines) {
+                    pdf.setFont("helvetica", line.isBold ? "bold" : "normal");
+                    const wrappedLines = pdf.splitTextToSize(line.text, maxWidth);
+                    totalHeight += wrappedLines.length * lineSpacing;
+                }
+
+                if (totalHeight <= maxHeight) break;
+                fontSize -= 0.5;
+            } while (fontSize >= minFontSize);
+
+            // Now draw the text
+            const startX = x + padding;
+            let currentY = y + padding + startPadding;
+            const lineSpacing = (fontSize / 72) * lineSpacingRatio;
+
+            for (const line of filteredLines) {
+                pdf.setFont("helvetica", line.isBold ? "bold" : "normal");
+                pdf.setFontSize(line.isBold ? fontSize + 1 : fontSize);
+
+                const wrappedLines = pdf.splitTextToSize(line.text, maxWidth);
+                for (const wrappedLine of wrappedLines) {
+                    if (currentY > y + template.height - padding) break;
+                    pdf.text(wrappedLine, startX, currentY);
+                    currentY += lineSpacing;
+                }
+            }
         }
 
         function generateLabelsPDF(addresses) {
@@ -1542,7 +1944,7 @@
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'in',
-                format: 'letter'
+                format: currentRegion === 'US' ? 'letter' : 'a4'
             });
 
             const labelsPerPage = template.cols * template.rows;
@@ -1631,6 +2033,7 @@
                         <div class="preview-item-details">${display.address}<br>${escapeHtml(display.location)}</div>
                     </div>
                     <div class="preview-item-actions">
+                        <button class="btn-edit" onclick="editUploadAddress(${index})">Edit</button>
                         <button class="btn-delete" onclick="deleteUploadAddress(${index})">Delete</button>
                     </div>
                 </div>
@@ -1654,6 +2057,97 @@
             return div.innerHTML;
         }
 
+        function editUploadAddress(index) {
+            const addr = previewAddresses[index];
+
+            // Set editing state
+            isEditing = true;
+            editingIndex = index;
+            editingSource = 'upload';
+
+            // Show inline edit form
+            const editForm = document.getElementById('uploadEditForm');
+            editForm.style.display = '';
+
+            // Load address into upload edit form
+            if (addr.firstName !== undefined) {
+                // New format
+                document.getElementById('uploadEditTitle').value = addr.title || '';
+                document.getElementById('uploadEditFirst').value = addr.firstName || '';
+                document.getElementById('uploadEditLast').value = addr.lastName || '';
+                document.getElementById('uploadEditSuffix').value = addr.suffix || '';
+                document.getElementById('uploadEditAddress1').value = addr.address1 || '';
+                document.getElementById('uploadEditAddress2').value = addr.address2 || '';
+                document.getElementById('uploadEditAddress2SameLine').checked = addr.address2SameLine || false;
+                document.getElementById('uploadEditAddress2Option').style.display = addr.address2 ? '' : 'none';
+                document.getElementById('uploadEditCity').value = addr.city || '';
+                document.getElementById('uploadEditState').value = addr.state || '';
+                document.getElementById('uploadEditPostalCode').value = addr.postalCode || '';
+                document.getElementById('uploadEditCountry').value = addr.country || '';
+            } else {
+                // Old format - parse as best we can
+                const nameParts = (addr.fullname || '').split(' ');
+                document.getElementById('uploadEditTitle').value = '';
+                document.getElementById('uploadEditFirst').value = nameParts[0] || '';
+                document.getElementById('uploadEditLast').value = nameParts.slice(1).join(' ') || '';
+                document.getElementById('uploadEditSuffix').value = '';
+                document.getElementById('uploadEditAddress1').value = addr.address || '';
+                document.getElementById('uploadEditAddress2').value = '';
+                document.getElementById('uploadEditAddress2SameLine').checked = false;
+                document.getElementById('uploadEditAddress2Option').style.display = 'none';
+                document.getElementById('uploadEditCity').value = addr.cityStateZip || '';
+                document.getElementById('uploadEditState').value = '';
+                document.getElementById('uploadEditPostalCode').value = '';
+                document.getElementById('uploadEditCountry').value = '';
+            }
+
+            // Update form labels for region
+            updateUploadEditFormLabels();
+
+            // Scroll to form and focus
+            editForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('uploadEditFirst').focus();
+
+            showStatus('Editing address. Click "Save Address" when done.', 'success');
+        }
+
+        function updateUploadEditFormLabels() {
+            const isUS = currentRegion === 'US';
+            const config = isUS ? {
+                stateLabel: 'State *',
+                statePlaceholder: 'NY',
+                postalLabel: 'ZIP Code *',
+                postalPlaceholder: '10001',
+                cityPlaceholder: 'New York',
+                countryPlaceholder: 'USA',
+                address2Hint: 'Per USPS, some addresses require this'
+            } : {
+                stateLabel: 'County/Region',
+                statePlaceholder: 'Greater London',
+                postalLabel: 'Postcode *',
+                postalPlaceholder: 'SW1A 1AA',
+                cityPlaceholder: 'London',
+                countryPlaceholder: 'United Kingdom',
+                address2Hint: 'Some addresses may require this on one line'
+            };
+
+            const stateLabel = document.getElementById('uploadEditStateLabel');
+            const postalLabel = document.getElementById('uploadEditPostalLabel');
+            const state = document.getElementById('uploadEditState');
+            const postalCode = document.getElementById('uploadEditPostalCode');
+            const city = document.getElementById('uploadEditCity');
+            const country = document.getElementById('uploadEditCountry');
+            const hint = document.getElementById('uploadEditAddress2Hint');
+
+            if (stateLabel) stateLabel.textContent = config.stateLabel;
+            if (postalLabel) postalLabel.textContent = config.postalLabel;
+            if (state) state.placeholder = config.statePlaceholder;
+            if (postalCode) postalCode.placeholder = config.postalPlaceholder;
+            if (city) city.placeholder = config.cityPlaceholder;
+            if (country) country.placeholder = config.countryPlaceholder;
+            if (hint) hint.textContent = config.address2Hint;
+        }
+
         function deleteUploadAddress(index) {
             if (previewAddresses.length === 1) {
                 if (confirm('This will remove the last address and cancel the preview. Continue?')) {
@@ -1668,6 +2162,7 @@
 
         function updateUploadFullSheetHint() {
             const template = TEMPLATES[currentTemplate];
+            if (!template) return;
             const labelsPerPage = template.cols * template.rows;
             const hint = document.getElementById('uploadFullSheetHint');
             if (hint) {
@@ -1679,6 +2174,7 @@
             if (previewAddresses.length === 0) return;
 
             const template = TEMPLATES[currentTemplate];
+            if (!template) return;
             const labelsPerPage = template.cols * template.rows;
             const fullSheetCheckbox = document.getElementById('uploadFullSheetCheckbox');
 
@@ -1724,13 +2220,8 @@
                 const pdf = generateLabelsPDF(addressesToPrint);
                 pdf.save(`${currentTemplate}-labels.pdf`);
 
-                // Also download CSV for future use (use original addresses, not duplicated)
-                setTimeout(() => {
-                    downloadAddressesCSV(previewAddresses, `${currentTemplate}-addresses.csv`);
-                }, 500);
-
                 const totalPages = Math.ceil(addressesToPrint.length / labelsPerPage);
-                showStatus(`✓ Success! Generated ${addressesToPrint.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF and CSV downloads started.`, 'success');
+                showStatus(`✓ Success! Generated ${addressesToPrint.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
 
                 // Clear preview after generating
                 cancelPreview();
@@ -1741,36 +2232,72 @@
         }
 
         // Manual entry functions
-        function addManualAddress() {
-            const title = document.getElementById('manualTitle').value.trim();
-            const firstName = document.getElementById('manualFirst').value.trim();
-            const lastName = document.getElementById('manualLast').value.trim();
-            const suffix = document.getElementById('manualSuffix').value.trim();
-            const address1 = document.getElementById('manualAddress1').value.trim();
-            const address2 = document.getElementById('manualAddress2').value.trim();
-            const address2SameLine = document.getElementById('manualAddress2SameLine').checked;
-            const city = document.getElementById('manualCity').value.trim();
-            const state = document.getElementById('manualState').value.trim();
-            const postalCode = document.getElementById('manualPostalCode').value.trim();
-            const country = document.getElementById('manualCountry').value.trim();
+        function saveAddress() {
+            // Determine which form we're using based on editing source
+            const prefix = (isEditing && editingSource === 'upload') ? 'uploadEdit' : 'manual';
 
-            // Validate required fields
-            if (!firstName || !lastName || !address1 || !city || !state || !postalCode) {
+            const title = document.getElementById(prefix + 'Title').value.trim();
+            const firstName = document.getElementById(prefix + 'First').value.trim();
+            const lastName = document.getElementById(prefix + 'Last').value.trim();
+            const suffix = document.getElementById(prefix + 'Suffix').value.trim();
+            const address1 = document.getElementById(prefix + 'Address1').value.trim();
+            const address2 = document.getElementById(prefix + 'Address2').value.trim();
+            const address2SameLine = document.getElementById(prefix + 'Address2SameLine').checked;
+            const city = document.getElementById(prefix + 'City').value.trim();
+            const state = document.getElementById(prefix + 'State').value.trim();
+            const postalCode = document.getElementById(prefix + 'PostalCode').value.trim();
+            const country = document.getElementById(prefix + 'Country').value.trim();
+
+            // Validate required fields - State/County is optional for UK/EU, required for US
+            const stateRequired = currentRegion === 'US';
+            if (!firstName || !lastName || !address1 || !city || !postalCode || (stateRequired && !state)) {
                 alert('Please fill in all required fields (marked with *)');
                 return;
             }
 
-            manualAddresses.push({
+            const addressData = {
                 title, firstName, lastName, suffix,
                 address1, address2, address2SameLine,
                 city, state, postalCode, country
-            });
-            saveAddressesToStorage();
-            updateAddressesList();
-            clearForm();
+            };
+
+            if (isEditing) {
+                if (editingSource === 'upload') {
+                    // Update the uploaded address at the original index
+                    previewAddresses[editingIndex] = addressData;
+                    saveUploadedAddressesToStorage();
+                    renderUploadPreviewList();
+                    showStatus('Address updated successfully.', 'success');
+                } else if (editingSource === 'manual') {
+                    // Update the manual address at the original index
+                    manualAddresses[editingIndex] = addressData;
+                    saveAddressesToStorage();
+                    updateAddressesList();
+                    showStatus('Address updated successfully.', 'success');
+                }
+            } else {
+                // Adding new address to manual list
+                manualAddresses.push(addressData);
+                saveAddressesToStorage();
+                updateAddressesList();
+                showStatus('Address added successfully.', 'success');
+            }
+
+            cancelEdit();
         }
 
-        function clearForm() {
+        function cancelEdit() {
+            // Reset editing state
+            isEditing = false;
+            editingIndex = -1;
+            editingSource = null;
+
+            // Reset manual form UI
+            document.getElementById('manualFormTitle').textContent = 'Add Address';
+            document.getElementById('manualFormButton').textContent = 'Add Address';
+            document.getElementById('manualClearButton').textContent = 'Clear';
+
+            // Clear manual form
             document.getElementById('manualTitle').value = '';
             document.getElementById('manualFirst').value = '';
             document.getElementById('manualLast').value = '';
@@ -1783,6 +2310,29 @@
             document.getElementById('manualState').value = '';
             document.getElementById('manualPostalCode').value = '';
             document.getElementById('manualCountry').value = '';
+
+            // Hide and clear upload edit form
+            const uploadEditForm = document.getElementById('uploadEditForm');
+            if (uploadEditForm) {
+                uploadEditForm.style.display = 'none';
+                document.getElementById('uploadEditTitle').value = '';
+                document.getElementById('uploadEditFirst').value = '';
+                document.getElementById('uploadEditLast').value = '';
+                document.getElementById('uploadEditSuffix').value = '';
+                document.getElementById('uploadEditAddress1').value = '';
+                document.getElementById('uploadEditAddress2').value = '';
+                document.getElementById('uploadEditAddress2SameLine').checked = false;
+                document.getElementById('uploadEditAddress2Option').style.display = 'none';
+                document.getElementById('uploadEditCity').value = '';
+                document.getElementById('uploadEditState').value = '';
+                document.getElementById('uploadEditPostalCode').value = '';
+                document.getElementById('uploadEditCountry').value = '';
+            }
+        }
+
+        // Legacy function name for backwards compatibility
+        function clearForm() {
+            cancelEdit();
         }
 
         // Helper to get display text for an address (handles both old and new formats)
@@ -1848,6 +2398,7 @@
 
         function updateManualStats() {
             const template = TEMPLATES[currentTemplate];
+            if (!template) return;
             const labelsPerPage = template.cols * template.rows;
             const fullSheetCheckbox = document.getElementById('manualFullSheetCheckbox');
 
@@ -1864,6 +2415,7 @@
 
         function updateManualFullSheetHint() {
             const template = TEMPLATES[currentTemplate];
+            if (!template) return;
             const labelsPerPage = template.cols * template.rows;
             const hint = document.getElementById('manualFullSheetHint');
             if (hint) {
@@ -1874,6 +2426,16 @@
         // Edit loads address into the form for modification
         function editManualAddress(index) {
             const addr = manualAddresses[index];
+
+            // Set editing state
+            isEditing = true;
+            editingIndex = index;
+            editingSource = 'manual';
+
+            // Update form UI to show editing mode
+            document.getElementById('manualFormTitle').textContent = 'Edit Address';
+            document.getElementById('manualFormButton').textContent = 'Save Address';
+            document.getElementById('manualClearButton').textContent = 'Cancel';
 
             // Handle both old and new format
             if (addr.firstName !== undefined) {
@@ -1909,14 +2471,11 @@
                 document.getElementById('manualCountry').value = '';
             }
 
-            // Delete the old entry - user will re-add via form
-            manualAddresses.splice(index, 1);
-            saveAddressesToStorage();
-            updateAddressesList();
-
             // Scroll to form
             document.getElementById('manualSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
             document.getElementById('manualFirst').focus();
+
+            showStatus('Editing address. Click "Save Address" when done.', 'success');
         }
 
         function deleteManualAddress(index) {
@@ -1961,8 +2520,8 @@
             }
         }
 
-        // Sample address data - expanded format
-        const SAMPLE_ADDRESSES = [
+        // Sample address data - expanded format (US)
+        const US_SAMPLE_ADDRESSES = [
             ['Title', 'First Name', 'Last Name', 'Suffix', 'Address 1', 'Address 2', 'City', 'State', 'Postal Code', 'Country'],
             ['', 'John', 'Smith', '', '123 Main St', '', 'New York', 'NY', '10001', 'USA'],
             ['Dr.', 'Jane', 'Doe', 'PhD', '456 Oak Ave', 'Suite 200', 'Boston', 'MA', '02101', 'USA'],
@@ -1975,6 +2534,52 @@
             ['', 'Christopher', 'Martinez', '', '369 Ash Ct', '', 'San Diego', 'CA', '92101', 'USA'],
             ['', 'Jessica', 'Anderson', '', '741 Oak Circle', '', 'Dallas', 'TX', '75201', 'USA']
         ];
+
+        // Sample address data - expanded format (UK/EU)
+        const UK_SAMPLE_ADDRESSES = [
+            ['Title', 'First Name', 'Last Name', 'Suffix', 'Address 1', 'Address 2', 'City', 'County/Region', 'Postcode', 'Country'],
+            ['', 'James', 'Smith', '', '10 Downing Street', '', 'London', '', 'SW1A 2AA', 'United Kingdom'],
+            ['Dr.', 'Emma', 'Williams', 'PhD', '221B Baker Street', 'Flat 2', 'London', '', 'NW1 6XE', 'United Kingdom'],
+            ['', 'Oliver', 'Brown', '', '45 High Street', '', 'Edinburgh', 'Scotland', 'EH1 1SR', 'United Kingdom'],
+            ['', 'Sophie', 'Jones', '', '78 Queen Street', 'Suite 3', 'Cardiff', 'Wales', 'CF10 2GP', 'United Kingdom'],
+            ['Mr.', 'William', 'Taylor', '', '23 Victoria Road', '', 'Manchester', 'Greater Manchester', 'M1 2HN', 'United Kingdom'],
+            ['', 'Charlotte', 'Davies', '', '156 Castle Street', '', 'Belfast', 'Northern Ireland', 'BT1 1HE', 'United Kingdom'],
+            ['', 'Harry', 'Wilson', '', '89 Church Lane', 'Unit 4', 'Birmingham', 'West Midlands', 'B1 1AA', 'United Kingdom'],
+            ['', 'Amelia', 'Evans', '', '34 Park Avenue', '', 'Glasgow', 'Scotland', 'G1 1XQ', 'United Kingdom'],
+            ['', 'George', 'Thomas', '', '67 Market Place', '', 'Bristol', '', 'BS1 3AE', 'United Kingdom'],
+            ['', 'Isla', 'Roberts', '', '12 Abbey Road', '', 'Liverpool', 'Merseyside', 'L1 9AA', 'United Kingdom']
+        ];
+
+        // Get sample addresses based on current region
+        function getSampleAddresses() {
+            return currentRegion === 'US' ? US_SAMPLE_ADDRESSES : UK_SAMPLE_ADDRESSES;
+        }
+
+        // Update format example based on region
+        function updateFormatExample() {
+            const formatExample = document.getElementById('formatExample');
+            if (!formatExample) return;
+
+            if (currentRegion === 'US') {
+                formatExample.innerHTML = `
+                    <strong>Expanded format (recommended):</strong><br>
+                    Title,First Name,Last Name,Suffix,Address 1,Address 2,City,State,Postal Code,Country<br>
+                    Dr.,Jane,Doe,PhD,456 Oak Ave,Suite 200,Boston,MA,02101,USA<br><br>
+                    <strong>Simple format (also works):</strong><br>
+                    Fullname,Address,City State Zip<br>
+                    John Smith,123 Main St,New York NY 10001
+                `;
+            } else {
+                formatExample.innerHTML = `
+                    <strong>Expanded format (recommended):</strong><br>
+                    Title,First Name,Last Name,Suffix,Address 1,Address 2,City,County/Region,Postcode,Country<br>
+                    Dr.,Emma,Williams,PhD,221B Baker Street,Flat 2,London,,NW1 6XE,United Kingdom<br><br>
+                    <strong>Simple format (also works):</strong><br>
+                    Fullname,Address,City Postcode<br>
+                    James Smith,10 Downing Street,London SW1A 2AA
+                `;
+            }
+        }
 
         // Helper function to download addresses as CSV
         function downloadAddressesCSV(addresses, filename) {
@@ -2043,9 +2648,16 @@
             showStatus(`Exported ${manualAddresses.length} address${manualAddresses.length !== 1 ? 'es' : ''} to CSV.`, 'success');
         }
 
+        // Export uploaded addresses to CSV
+        function exportUploadedAddressesCSV() {
+            if (previewAddresses.length === 0) return;
+            downloadAddressesCSV(previewAddresses, 'updated-addresses.csv');
+            showStatus(`Exported ${previewAddresses.length} address${previewAddresses.length !== 1 ? 'es' : ''} to CSV.`, 'success');
+        }
+
         // Download example CSV file
         function downloadExampleCSV() {
-            const csvContent = SAMPLE_ADDRESSES.map(row => row.join(',')).join('\n');
+            const csvContent = getSampleAddresses().map(row => row.join(',')).join('\n');
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
@@ -2066,7 +2678,7 @@
             const wb = XLSX.utils.book_new();
 
             // Create worksheet from array data
-            const ws = XLSX.utils.aoa_to_sheet(SAMPLE_ADDRESSES);
+            const ws = XLSX.utils.aoa_to_sheet(getSampleAddresses());
 
             // Set column widths for new 10-column format
             ws['!cols'] = [

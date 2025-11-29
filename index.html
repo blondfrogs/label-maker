@@ -796,9 +796,9 @@
         <h1>Free Label Maker for Addresses</h1>
         <p class="subtitle">Generate professional PDF address labels - Works with Avery & compatible brands</p>
 
-        <!-- Region Selector -->
+        <!-- Paper Size Selector -->
         <div class="region-selector">
-            <label>Region:</label>
+            <label>Paper Size:</label>
             <div class="region-toggle">
                 <button id="regionUS" class="active" onclick="setRegion('US')">US (Letter)</button>
                 <button id="regionUK" onclick="setRegion('UK')">UK/EU (A4)</button>
@@ -1298,7 +1298,7 @@
 
             // Define region-specific labels and placeholders
             const config = isUS ? {
-                stateLabel: 'State *',
+                stateLabel: 'State',
                 statePlaceholder: 'NY',
                 postalLabel: 'ZIP Code *',
                 postalPlaceholder: '10001',
@@ -1531,9 +1531,8 @@
             const state = document.getElementById('returnState').value.trim();
             const postalCode = document.getElementById('returnPostalCode').value.trim();
 
-            // State/County is optional for UK/EU, required for US
-            const stateRequired = currentRegion === 'US';
-            if (!firstName || !lastName || !address1 || !city || !postalCode || (stateRequired && !state)) {
+            // State/County is optional (supports international addresses)
+            if (!firstName || !lastName || !address1 || !city || !postalCode) {
                 return null;
             }
 
@@ -2114,7 +2113,7 @@
         function updateUploadEditFormLabels() {
             const isUS = currentRegion === 'US';
             const config = isUS ? {
-                stateLabel: 'State *',
+                stateLabel: 'State',
                 statePlaceholder: 'NY',
                 postalLabel: 'ZIP Code *',
                 postalPlaceholder: '10001',
@@ -2248,9 +2247,8 @@
             const postalCode = document.getElementById(prefix + 'PostalCode').value.trim();
             const country = document.getElementById(prefix + 'Country').value.trim();
 
-            // Validate required fields - State/County is optional for UK/EU, required for US
-            const stateRequired = currentRegion === 'US';
-            if (!firstName || !lastName || !address1 || !city || !postalCode || (stateRequired && !state)) {
+            // Validate required fields - State/County is optional (supports international addresses)
+            if (!firstName || !lastName || !address1 || !city || !postalCode) {
                 alert('Please fill in all required fields (marked with *)');
                 return;
             }

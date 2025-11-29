@@ -208,76 +208,6 @@
             background: #d0d0d0;
         }
 
-        .addresses-list {
-            margin-top: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .address-item {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .address-item-content {
-            flex: 1;
-        }
-
-        .address-item-name {
-            font-weight: 500;
-            color: #333;
-        }
-
-        .address-item-details {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .btn-remove {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .btn-remove:hover {
-            background: #cc0000;
-        }
-
-        .generate-btn {
-            width: 100%;
-            margin-top: 20px;
-            padding: 15px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .generate-btn:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .generate-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .status {
             margin-top: 20px;
             padding: 15px;
@@ -407,6 +337,287 @@
             text-decoration: underline;
             color: #5568d3;
         }
+
+        /* Preview Section Styles */
+        .preview-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border: 2px solid #667eea;
+        }
+
+        .preview-section.active {
+            display: block;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .preview-header h3 {
+            color: #333;
+            font-size: 18px;
+        }
+
+        .preview-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .preview-stats span {
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .preview-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .preview-item-number {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .preview-item-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .preview-item-details {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .preview-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .preview-buttons .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 15px;
+        }
+
+        .btn-generate {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-generate:hover {
+            background: #218838;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        /* Full Sheet Checkbox Styles */
+        .full-sheet-option {
+            margin-top: 15px;
+            padding: 12px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            border: 1px solid #b8daff;
+        }
+
+        .full-sheet-option label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .full-sheet-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .full-sheet-hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+            margin-left: 28px;
+        }
+
+        /* Export CSV section */
+        .export-csv-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4f8;
+            border-radius: 8px;
+            border: 1px solid #b8dce8;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .export-csv-info {
+            flex: 1;
+        }
+
+        .export-csv-info strong {
+            color: #0c5460;
+            font-size: 14px;
+        }
+
+        .export-csv-info p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .export-btn {
+            padding: 12px 20px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .export-btn:hover {
+            background: #138496;
+        }
+
+        /* Preview item edit styles */
+        .preview-item-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .preview-item.editing {
+            background: #fff9e6;
+            border-left-color: #ffc107;
+        }
+
+        .preview-item .edit-form {
+            display: none;
+        }
+
+        .preview-item.editing .edit-form {
+            display: block;
+        }
+
+        .preview-item.editing .preview-item-content {
+            display: none;
+        }
+
+        .preview-item.editing .preview-item-actions {
+            display: none;
+        }
+
+        .edit-form input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .edit-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .edit-form-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-save:hover {
+            background: #218838;
+        }
+
+        .btn-cancel-edit {
+            background: #6c757d;
+            color: white;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-cancel-edit:hover {
+            background: #5a6268;
+        }
+
     </style>
 </head>
 <body>
@@ -454,6 +665,31 @@
                     💡 <strong>Tip:</strong> Download the Excel file, edit it with your addresses, then save as CSV to upload here.
                 </p>
             </div>
+
+            <!-- Preview Section for File Upload -->
+            <div id="previewSection" class="preview-section">
+                <div class="preview-header">
+                    <h3>Preview Addresses</h3>
+                    <div class="preview-stats">
+                        <span id="previewCount">0 addresses</span>
+                        <span id="previewPages">0 pages</span>
+                    </div>
+                </div>
+                <div id="previewList" class="preview-list"></div>
+                <div id="uploadFullSheetOption" class="full-sheet-option" style="display: none;">
+                    <label>
+                        <input type="checkbox" id="uploadFullSheetCheckbox" onchange="updateUploadPreviewStats()">
+                        Fill entire sheet with the same address
+                    </label>
+                    <div id="uploadFullSheetHint" class="full-sheet-hint">
+                        Creates 30 labels of the same address (based on current template)
+                    </div>
+                </div>
+                <div class="preview-buttons">
+                    <button class="btn btn-cancel" onclick="cancelPreview()">Cancel</button>
+                    <button class="btn btn-generate" onclick="generateFromPreview()">Generate PDF</button>
+                </div>
+            </div>
         </div>
 
         <!-- Manual Entry Section -->
@@ -470,11 +706,42 @@
                     <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
                 </div>
 
-                <div id="addressesList" class="addresses-list"></div>
+                <!-- Addresses List Section (like file upload preview) -->
+                <div id="manualAddressesSection" class="preview-section">
+                    <div class="preview-header">
+                        <h3>Your Addresses</h3>
+                        <div class="preview-stats">
+                            <span id="manualAddressCount">0 addresses</span>
+                            <span id="manualPageCount">0 pages</span>
+                        </div>
+                    </div>
+                    <div id="manualAddressesList" class="preview-list"></div>
 
-                <button class="generate-btn" id="manualGenerateBtn" onclick="generateFromManual()" disabled>
-                    Generate Labels (0 addresses)
-                </button>
+                    <div id="manualFullSheetOption" class="full-sheet-option" style="display: none;">
+                        <label>
+                            <input type="checkbox" id="manualFullSheetCheckbox" onchange="updateManualStats()">
+                            Fill entire sheet with the same address
+                        </label>
+                        <div id="manualFullSheetHint" class="full-sheet-hint">
+                            Creates 30 labels of the same address (based on current template)
+                        </div>
+                    </div>
+
+                    <div class="preview-buttons">
+                        <button class="btn btn-cancel" onclick="clearAllAddresses()">Clear All</button>
+                        <button class="btn btn-generate" onclick="generateFromManual()">Generate PDF</button>
+                    </div>
+
+                    <div class="export-csv-section" style="margin-top: 15px;">
+                        <div class="export-csv-info">
+                            <strong>Save for Next Time</strong>
+                            <p>Export your addresses to a CSV file so you can quickly import them next year instead of typing them again.</p>
+                        </div>
+                        <button class="export-btn" onclick="exportManualAddressesCSV()">
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -537,6 +804,10 @@
 
         let currentTemplate = '8160';
         let manualAddresses = [];
+        let previewAddresses = [];
+
+        const STORAGE_KEY = 'labelMakerAddresses';
+        const UPLOAD_STORAGE_KEY = 'labelMakerUploadedAddresses';
 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
@@ -545,7 +816,87 @@
 
         templateSelect.addEventListener('change', (e) => {
             currentTemplate = e.target.value;
+            updateManualFullSheetHint();
+            updateManualStats();
+            updateUploadFullSheetHint();
+            updateUploadPreviewStats();
         });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAddressesFromStorage();
+            loadUploadedAddressesFromStorage();
+        });
+
+        // Save addresses to localStorage
+        function saveAddressesToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(manualAddresses));
+            } catch (e) {
+                console.warn('Could not save to localStorage:', e);
+            }
+        }
+
+        // Load addresses from localStorage
+        function loadAddressesFromStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    manualAddresses = JSON.parse(saved);
+                    updateAddressesList();
+                    if (manualAddresses.length > 0) {
+                        showStatus(`Restored ${manualAddresses.length} saved address${manualAddresses.length !== 1 ? 'es' : ''} from your last session.`, 'success');
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load from localStorage:', e);
+            }
+        }
+
+        // Save uploaded addresses to localStorage
+        function saveUploadedAddressesToStorage() {
+            try {
+                localStorage.setItem(UPLOAD_STORAGE_KEY, JSON.stringify(previewAddresses));
+            } catch (e) {
+                console.warn('Could not save uploaded addresses to localStorage:', e);
+            }
+        }
+
+        // Load uploaded addresses from localStorage
+        function loadUploadedAddressesFromStorage() {
+            try {
+                const saved = localStorage.getItem(UPLOAD_STORAGE_KEY);
+                if (saved) {
+                    previewAddresses = JSON.parse(saved);
+                    if (previewAddresses.length > 0) {
+                        showPreview(previewAddresses);
+                        showStatus(`Restored ${previewAddresses.length} uploaded address${previewAddresses.length !== 1 ? 'es' : ''} from your last session.`, 'success');
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load uploaded addresses from localStorage:', e);
+            }
+        }
+
+        // Clear uploaded addresses from storage
+        function clearUploadedAddressesFromStorage() {
+            try {
+                localStorage.removeItem(UPLOAD_STORAGE_KEY);
+            } catch (e) {
+                console.warn('Could not clear uploaded addresses from localStorage:', e);
+            }
+        }
+
+        // Clear all saved addresses
+        function clearAllAddresses() {
+            if (manualAddresses.length === 0) return;
+            if (confirm(`Are you sure you want to delete all ${manualAddresses.length} address${manualAddresses.length !== 1 ? 'es' : ''}? This cannot be undone.`)) {
+                manualAddresses = [];
+                saveAddressesToStorage();
+                updateAddressesList();
+                showStatus('All addresses have been cleared.', 'success');
+            }
+        }
 
         function switchTab(tab) {
             const buttons = document.querySelectorAll('.tab-button');
@@ -735,18 +1086,197 @@
                     return;
                 }
 
-                showStatus(`Generating PDF labels for ${addresses.length} addresses...`, 'processing');
-
-                const pdf = generateLabelsPDF(addresses);
-                pdf.save(`${currentTemplate}-labels.pdf`);
-
-                const template = TEMPLATES[currentTemplate];
-                const totalPages = Math.ceil(addresses.length / (template.cols * template.rows));
-                showStatus(`✓ Success! Generated ${addresses.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
+                // Store addresses for preview and save to storage
+                previewAddresses = addresses;
+                saveUploadedAddressesToStorage();
+                showPreview(addresses);
+                showStatus(`Found ${addresses.length} addresses. Review below and click "Generate PDF" to create labels.`, 'success');
 
             } catch (error) {
                 console.error(error);
                 showStatus('Error processing file: ' + error.message, 'error');
+            }
+        }
+
+        function showPreview(addresses) {
+            const previewSection = document.getElementById('previewSection');
+            const previewList = document.getElementById('previewList');
+            const fullSheetOption = document.getElementById('uploadFullSheetOption');
+            const fullSheetCheckbox = document.getElementById('uploadFullSheetCheckbox');
+
+            // Show/hide full sheet option based on address count
+            if (addresses.length === 1) {
+                fullSheetOption.style.display = '';
+                updateUploadFullSheetHint();
+            } else {
+                fullSheetOption.style.display = 'none';
+                fullSheetCheckbox.checked = false;
+            }
+
+            // Update stats
+            updateUploadPreviewStats();
+
+            // Build preview list with edit/delete buttons
+            renderUploadPreviewList();
+
+            // Show preview section
+            previewSection.classList.add('active');
+        }
+
+        function renderUploadPreviewList() {
+            const previewList = document.getElementById('previewList');
+            previewList.innerHTML = previewAddresses.map((addr, index) => `
+                <div class="preview-item" id="upload-preview-${index}">
+                    <div class="preview-item-content">
+                        <div class="preview-item-number">Address #${index + 1}</div>
+                        <div class="preview-item-name">${escapeHtml(addr.fullname)}</div>
+                        <div class="preview-item-details">${escapeHtml(addr.address)}<br>${escapeHtml(addr.cityStateZip)}</div>
+                    </div>
+                    <div class="preview-item-actions">
+                        <button class="btn-edit" onclick="editUploadAddress(${index})">Edit</button>
+                        <button class="btn-delete" onclick="deleteUploadAddress(${index})">Delete</button>
+                    </div>
+                    <div class="edit-form">
+                        <input type="text" id="upload-edit-name-${index}" value="${escapeHtml(addr.fullname)}" placeholder="Full Name">
+                        <input type="text" id="upload-edit-address-${index}" value="${escapeHtml(addr.address)}" placeholder="Street Address">
+                        <input type="text" id="upload-edit-csz-${index}" value="${escapeHtml(addr.cityStateZip)}" placeholder="City, State Zip">
+                        <div class="edit-form-buttons">
+                            <button class="btn-cancel-edit" onclick="cancelUploadEdit(${index})">Cancel</button>
+                            <button class="btn-save" onclick="saveUploadAddress(${index})">Save</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update full sheet visibility
+            const fullSheetOption = document.getElementById('uploadFullSheetOption');
+            if (previewAddresses.length === 1) {
+                fullSheetOption.style.display = '';
+            } else {
+                fullSheetOption.style.display = 'none';
+                document.getElementById('uploadFullSheetCheckbox').checked = false;
+            }
+
+            updateUploadPreviewStats();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function editUploadAddress(index) {
+            document.getElementById(`upload-preview-${index}`).classList.add('editing');
+        }
+
+        function cancelUploadEdit(index) {
+            const item = document.getElementById(`upload-preview-${index}`);
+            item.classList.remove('editing');
+            // Reset input values
+            document.getElementById(`upload-edit-name-${index}`).value = previewAddresses[index].fullname;
+            document.getElementById(`upload-edit-address-${index}`).value = previewAddresses[index].address;
+            document.getElementById(`upload-edit-csz-${index}`).value = previewAddresses[index].cityStateZip;
+        }
+
+        function saveUploadAddress(index) {
+            const name = document.getElementById(`upload-edit-name-${index}`).value.trim();
+            const address = document.getElementById(`upload-edit-address-${index}`).value.trim();
+            const cityStateZip = document.getElementById(`upload-edit-csz-${index}`).value.trim();
+
+            if (!name || !address || !cityStateZip) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            previewAddresses[index] = { fullname: name, address, cityStateZip };
+            saveUploadedAddressesToStorage();
+            renderUploadPreviewList();
+        }
+
+        function deleteUploadAddress(index) {
+            if (previewAddresses.length === 1) {
+                if (confirm('This will remove the last address and cancel the preview. Continue?')) {
+                    cancelPreview();
+                }
+                return;
+            }
+            previewAddresses.splice(index, 1);
+            saveUploadedAddressesToStorage();
+            renderUploadPreviewList();
+        }
+
+        function updateUploadFullSheetHint() {
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+            const hint = document.getElementById('uploadFullSheetHint');
+            if (hint) {
+                hint.textContent = `Creates ${labelsPerPage} labels of the same address (based on current template)`;
+            }
+        }
+
+        function updateUploadPreviewStats() {
+            if (previewAddresses.length === 0) return;
+
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+            const fullSheetCheckbox = document.getElementById('uploadFullSheetCheckbox');
+
+            let labelCount = previewAddresses.length;
+            if (fullSheetCheckbox && fullSheetCheckbox.checked && previewAddresses.length === 1) {
+                labelCount = labelsPerPage;
+            }
+
+            const totalPages = Math.ceil(labelCount / labelsPerPage);
+
+            document.getElementById('previewCount').textContent = `${labelCount} label${labelCount !== 1 ? 's' : ''}`;
+            document.getElementById('previewPages').textContent = `${totalPages} page${totalPages !== 1 ? 's' : ''}`;
+        }
+
+        function cancelPreview() {
+            previewAddresses = [];
+            clearUploadedAddressesFromStorage();
+            document.getElementById('previewSection').classList.remove('active');
+            document.getElementById('previewList').innerHTML = '';
+            document.getElementById('uploadFullSheetOption').style.display = 'none';
+            document.getElementById('uploadFullSheetCheckbox').checked = false;
+            fileInput.value = '';
+            status.style.display = 'none';
+        }
+
+        function generateFromPreview() {
+            if (previewAddresses.length === 0) return;
+
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+            const fullSheetCheckbox = document.getElementById('uploadFullSheetCheckbox');
+
+            let addressesToPrint = previewAddresses;
+
+            // If full sheet is checked and there's exactly one address, replicate it
+            if (fullSheetCheckbox.checked && previewAddresses.length === 1) {
+                addressesToPrint = Array(labelsPerPage).fill(previewAddresses[0]);
+            }
+
+            showStatus(`Generating PDF labels for ${addressesToPrint.length} labels...`, 'processing');
+
+            try {
+                const pdf = generateLabelsPDF(addressesToPrint);
+                pdf.save(`${currentTemplate}-labels.pdf`);
+
+                // Also download CSV for future use (use original addresses, not duplicated)
+                setTimeout(() => {
+                    downloadAddressesCSV(previewAddresses, `${currentTemplate}-addresses.csv`);
+                }, 500);
+
+                const totalPages = Math.ceil(addressesToPrint.length / labelsPerPage);
+                showStatus(`✓ Success! Generated ${addressesToPrint.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF and CSV downloads started.`, 'success');
+
+                // Clear preview after generating
+                cancelPreview();
+            } catch (error) {
+                console.error(error);
+                showStatus('Error generating labels: ' + error.message, 'error');
             }
         }
 
@@ -762,6 +1292,7 @@
             }
 
             manualAddresses.push({ fullname: name, address, cityStateZip });
+            saveAddressesToStorage();
             updateAddressesList();
             clearForm();
         }
@@ -772,48 +1303,145 @@
             document.getElementById('manualCityStateZip').value = '';
         }
 
-        function removeAddress(index) {
-            manualAddresses.splice(index, 1);
-            updateAddressesList();
-        }
-
         function updateAddressesList() {
-            const list = document.getElementById('addressesList');
-            const btn = document.getElementById('manualGenerateBtn');
+            const section = document.getElementById('manualAddressesSection');
+            const list = document.getElementById('manualAddressesList');
+            const fullSheetOption = document.getElementById('manualFullSheetOption');
 
             if (manualAddresses.length === 0) {
-                list.innerHTML = '';
-                btn.disabled = true;
-                btn.textContent = 'Generate Labels (0 addresses)';
+                section.classList.remove('active');
                 return;
             }
 
-            btn.disabled = false;
-            btn.textContent = `Generate Labels (${manualAddresses.length} address${manualAddresses.length > 1 ? 'es' : ''})`;
+            // Show the section
+            section.classList.add('active');
 
+            // Update stats
+            updateManualStats();
+
+            // Only show full sheet option when exactly 1 address
+            if (manualAddresses.length === 1) {
+                fullSheetOption.style.display = '';
+                updateManualFullSheetHint();
+            } else {
+                fullSheetOption.style.display = 'none';
+                document.getElementById('manualFullSheetCheckbox').checked = false;
+            }
+
+            // Render addresses like file upload preview
             list.innerHTML = manualAddresses.map((addr, index) => `
-                <div class="address-item">
-                    <div class="address-item-content">
-                        <div class="address-item-name">${addr.fullname}</div>
-                        <div class="address-item-details">${addr.address}, ${addr.cityStateZip}</div>
+                <div class="preview-item" id="manual-item-${index}">
+                    <div class="preview-item-content">
+                        <div class="preview-item-number">Address #${index + 1}</div>
+                        <div class="preview-item-name">${escapeHtml(addr.fullname)}</div>
+                        <div class="preview-item-details">${escapeHtml(addr.address)}<br>${escapeHtml(addr.cityStateZip)}</div>
                     </div>
-                    <button class="btn-remove" onclick="removeAddress(${index})">Remove</button>
+                    <div class="preview-item-actions">
+                        <button class="btn-edit" onclick="editManualAddress(${index})">Edit</button>
+                        <button class="btn-delete" onclick="deleteManualAddress(${index})">Delete</button>
+                    </div>
+                    <div class="edit-form">
+                        <input type="text" id="manual-edit-name-${index}" value="${escapeHtml(addr.fullname)}" placeholder="Full Name">
+                        <input type="text" id="manual-edit-address-${index}" value="${escapeHtml(addr.address)}" placeholder="Street Address">
+                        <input type="text" id="manual-edit-csz-${index}" value="${escapeHtml(addr.cityStateZip)}" placeholder="City, State Zip">
+                        <div class="edit-form-buttons">
+                            <button class="btn-cancel-edit" onclick="cancelManualEdit(${index})">Cancel</button>
+                            <button class="btn-save" onclick="saveManualAddress(${index})">Save</button>
+                        </div>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function updateManualStats() {
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+            const fullSheetCheckbox = document.getElementById('manualFullSheetCheckbox');
+
+            let labelCount = manualAddresses.length;
+            if (fullSheetCheckbox && fullSheetCheckbox.checked && manualAddresses.length === 1) {
+                labelCount = labelsPerPage;
+            }
+
+            const totalPages = Math.ceil(labelCount / labelsPerPage);
+
+            document.getElementById('manualAddressCount').textContent = `${labelCount} label${labelCount !== 1 ? 's' : ''}`;
+            document.getElementById('manualPageCount').textContent = `${totalPages} page${totalPages !== 1 ? 's' : ''}`;
+        }
+
+        function updateManualFullSheetHint() {
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+            const hint = document.getElementById('manualFullSheetHint');
+            if (hint) {
+                hint.textContent = `Creates ${labelsPerPage} labels of the same address (based on current template)`;
+            }
+        }
+
+        function editManualAddress(index) {
+            document.getElementById(`manual-item-${index}`).classList.add('editing');
+        }
+
+        function cancelManualEdit(index) {
+            const item = document.getElementById(`manual-item-${index}`);
+            item.classList.remove('editing');
+            // Reset input values
+            document.getElementById(`manual-edit-name-${index}`).value = manualAddresses[index].fullname;
+            document.getElementById(`manual-edit-address-${index}`).value = manualAddresses[index].address;
+            document.getElementById(`manual-edit-csz-${index}`).value = manualAddresses[index].cityStateZip;
+        }
+
+        function saveManualAddress(index) {
+            const name = document.getElementById(`manual-edit-name-${index}`).value.trim();
+            const address = document.getElementById(`manual-edit-address-${index}`).value.trim();
+            const cityStateZip = document.getElementById(`manual-edit-csz-${index}`).value.trim();
+
+            if (!name || !address || !cityStateZip) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            manualAddresses[index] = { fullname: name, address, cityStateZip };
+            saveAddressesToStorage();
+            updateAddressesList();
+        }
+
+        function deleteManualAddress(index) {
+            if (manualAddresses.length === 1) {
+                if (confirm('This will remove the last address. Continue?')) {
+                    manualAddresses = [];
+                    saveAddressesToStorage();
+                    updateAddressesList();
+                }
+                return;
+            }
+            manualAddresses.splice(index, 1);
+            saveAddressesToStorage();
+            updateAddressesList();
         }
 
         function generateFromManual() {
             if (manualAddresses.length === 0) return;
 
-            showStatus(`Generating PDF labels for ${manualAddresses.length} addresses...`, 'processing');
+            const template = TEMPLATES[currentTemplate];
+            const labelsPerPage = template.cols * template.rows;
+            const fullSheetCheckbox = document.getElementById('manualFullSheetCheckbox');
+
+            let addressesToPrint = manualAddresses;
+
+            // If full sheet is checked and there's exactly one address, replicate it
+            if (fullSheetCheckbox && fullSheetCheckbox.checked && manualAddresses.length === 1) {
+                addressesToPrint = Array(labelsPerPage).fill(manualAddresses[0]);
+            }
+
+            showStatus(`Generating PDF labels for ${addressesToPrint.length} labels...`, 'processing');
 
             try {
-                const pdf = generateLabelsPDF(manualAddresses);
+                const pdf = generateLabelsPDF(addressesToPrint);
                 pdf.save(`${currentTemplate}-labels.pdf`);
 
-                const template = TEMPLATES[currentTemplate];
-                const totalPages = Math.ceil(manualAddresses.length / (template.cols * template.rows));
-                showStatus(`✓ Success! Generated ${manualAddresses.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
+                const totalPages = Math.ceil(addressesToPrint.length / labelsPerPage);
+                showStatus(`✓ Success! Generated ${addressesToPrint.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
             } catch (error) {
                 console.error(error);
                 showStatus('Error generating labels: ' + error.message, 'error');
@@ -834,6 +1462,45 @@
             ['Christopher Martinez', '369 Ash Ct', 'San Diego CA 92101'],
             ['Jessica Anderson', '741 Oak Circle', 'Dallas TX 75201']
         ];
+
+        // Helper function to download addresses as CSV
+        function downloadAddressesCSV(addresses, filename) {
+            const header = ['Fullname', 'Address', 'City State Zip Code'];
+            const rows = addresses.map(addr => {
+                // Escape fields that contain commas or quotes
+                const escapeCsvField = (field) => {
+                    if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+                        return '"' + field.replace(/"/g, '""') + '"';
+                    }
+                    return field;
+                };
+                return [
+                    escapeCsvField(addr.fullname),
+                    escapeCsvField(addr.address),
+                    escapeCsvField(addr.cityStateZip)
+                ].join(',');
+            });
+
+            const csvContent = [header.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Export manual addresses to CSV
+        function exportManualAddressesCSV() {
+            if (manualAddresses.length === 0) return;
+            downloadAddressesCSV(manualAddresses, 'my-addresses.csv');
+            showStatus(`Exported ${manualAddresses.length} address${manualAddresses.length !== 1 ? 'es' : ''} to CSV.`, 'success');
+        }
 
         // Download example CSV file
         function downloadExampleCSV() {

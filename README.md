@@ -72,6 +72,20 @@ Built with:
 
 Simply open `index.html` in any modern web browser. No build process or dependencies to install!
 
+## Docker
+
+To run in a Docker container:
+
+```bash
+# Build the image
+docker build -t label-maker .
+
+# Run the container
+docker run -p 8080:80 label-maker
+```
+
+Then open http://localhost:8080 in your browser.
+
 ## Printing Instructions
 
 **Important:** For perfect alignment:

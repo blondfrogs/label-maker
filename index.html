@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Free Label Maker for Addresses</title>
     <link rel="stylesheet" href="styles.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
 </head>
 <body>
     <div class="container">
@@ -27,6 +28,27 @@
             <select id="templateSelect">
                 <!-- Options populated by JavaScript based on region -->
             </select>
+        </div>
+
+        <!-- Skip Labels Option -->
+        <div class="skip-labels-section">
+            <label for="skipLabels">Skip Labels:</label>
+            <div class="skip-labels-control">
+                <input type="number" id="skipLabels" min="0" value="0" placeholder="0">
+                <button type="button" class="btn-reset-skip" onclick="resetSkipLabels()" title="Reset to 0">Reset</button>
+                <span class="skip-labels-hint" id="skipLabelsHint">Leave blank positions for partially used sheets</span>
+            </div>
+        </div>
+
+        <!-- Font Selection -->
+        <div class="font-selector-row" id="globalFontOptions">
+            <label for="globalFontSelect">Font:</label>
+            <select id="globalFontSelect" onchange="updateFontFromGlobal()">
+                <option value="helvetica">Helvetica (Default)</option>
+                <option value="times">Times New Roman</option>
+                <option value="courier">Courier (Monospace)</option>
+            </select>
+            <span id="globalFontPreviewText" class="font-preview-text">This is the font you are selecting.</span>
         </div>
 
         <!-- Input Method Tabs -->
@@ -275,19 +297,19 @@
                     <div class="form-row name-row">
                         <div class="form-group">
                             <label for="returnTitle">Title</label>
-                            <input type="text" id="returnTitle" placeholder="Hon.">
+                            <input type="text" id="returnTitle" placeholder="The">
                         </div>
                         <div class="form-group">
-                            <label for="returnFirst">First Name *</label>
-                            <input type="text" id="returnFirst" placeholder="John">
+                            <label for="returnFirst">First Name</label>
+                            <input type="text" id="returnFirst" placeholder="(optional)">
                         </div>
                         <div class="form-group">
                             <label for="returnLast">Last Name *</label>
-                            <input type="text" id="returnLast" placeholder="Smith">
+                            <input type="text" id="returnLast" placeholder="Smith Family">
                         </div>
                         <div class="form-group">
                             <label for="returnSuffix">Suffix</label>
-                            <input type="text" id="returnSuffix" placeholder="Jr.">
+                            <input type="text" id="returnSuffix" placeholder="">
                         </div>
                     </div>
                     <!-- Address Row -->
@@ -326,6 +348,154 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Font Selection -->
+                <div class="font-selector-row">
+                    <label for="fontSelect">Font:</label>
+                    <select id="fontSelect" onchange="updateFontFromReturn()">
+                        <option value="helvetica">Helvetica (Default)</option>
+                        <option value="times">Times New Roman</option>
+                        <option value="courier">Courier (Monospace)</option>
+                    </select>
+                    <span id="fontPreviewText" class="font-preview-text">This is the font you are selecting.</span>
+                </div>
+
+                <!-- Icon/Emoji Options (Return Labels Only) -->
+                <div class="icon-options-section">
+                    <div class="icon-options-header" onclick="toggleIconOptions()">
+                        <span class="icon-options-title">Icon & Emoji Options</span>
+                        <span class="icon-options-toggle" id="iconOptionsToggle">+</span>
+                    </div>
+                    <div class="icon-options-content" id="iconOptionsContent" style="display: none;">
+                    <p class="icon-options-info">Add a decorative icon or emoji to your return address labels</p>
+
+                    <!-- Icon Selection -->
+                    <div class="icon-option-group">
+                        <label>Choose Icon:</label>
+                        <div class="icon-selector">
+                            <div class="icon-option selected" data-icon="none" onclick="selectIcon('none')" title="No icon">
+                                <span class="icon-none">None</span>
+                            </div>
+                            <div class="icon-option" data-icon="gift" onclick="selectIcon('gift')" title="Gift">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 7h-1.1A5.5 5.5 0 0 0 12 2.6 5.5 5.5 0 0 0 5.1 7H4a2 2 0 0 0-2 2v2a1 1 0 0 0 1 1h1v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7h1a1 1 0 0 0 1-1V9a2 2 0 0 0-2-2zm-8-2.7a3.5 3.5 0 0 1 3.5 3.2l.1.5H12V4.3zM8.5 7.5A3.5 3.5 0 0 1 12 4.3V8H8.4l.1-.5zM11 19H6v-7h5v7zm0-9H4V9h7v1zm2 9v-7h5v7h-5zm7-9h-7V9h7v1z"/></svg>
+                            </div>
+                            <div class="icon-option" data-icon="heart" onclick="selectIcon('heart')" title="Heart">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
+                            <div class="icon-option" data-icon="star" onclick="selectIcon('star')" title="Star">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            </div>
+                            <div class="icon-option" data-icon="snowflake" onclick="selectIcon('snowflake')" title="Snowflake">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 1v4.07A8 8 0 0 0 5.07 11H1v2h4.07A8 8 0 0 0 11 18.93V23h2v-4.07A8 8 0 0 0 18.93 13H23v-2h-4.07A8 8 0 0 0 13 5.07V1h-2zm1 6a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg>
+                            </div>
+                            <div class="icon-option" data-icon="tree" onclick="selectIcon('tree')" title="Tree">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 12h3v4H4l8 6 8-6h-3v-4h3L12 2zm0 3.5L16.5 11H14v4h-4v-4H7.5L12 5.5z"/></svg>
+                            </div>
+                            <div class="icon-option" data-icon="home" onclick="selectIcon('home')" title="Home">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                            </div>
+                            <div class="icon-option" data-icon="mail" onclick="selectIcon('mail')" title="Mail">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            </div>
+                            <div class="icon-option" data-icon="flower" onclick="selectIcon('flower')" title="Flower">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-14C9.5 2 8 4.5 8 6c0 1.2.5 2.3 1.3 3A6 6 0 0 0 6 12c0 1.2.3 2.3 1 3.3-.8.7-1.3 1.8-1.3 3 0 2.5 1.5 5 4.3 5 1.5 0 2.7-1 3.3-1.7.6.7 1.8 1.7 3.3 1.7 2.8 0 4.3-2.5 4.3-5 0-1.2-.5-2.3-1.3-3 .7-1 1-2.1 1-3.3a6 6 0 0 0-3.3-5.3c.8-.7 1.3-1.8 1.3-3 0-2.5-1.5-5-4.3-5-1.5 0-2.7 1-3.3 1.7-.6-.7-1.8-1.7-3.3-1.7z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Icon Color -->
+                    <div class="icon-option-group" id="iconColorGroup">
+                        <label for="iconColor">Icon Color:</label>
+                        <div class="color-picker-row">
+                            <input type="color" id="iconColor" value="#000000" onchange="setIconColor(this.value)">
+                            <div class="color-presets">
+                                <button type="button" class="color-preset" style="background: #000000" onclick="setIconColor('#000000'); document.getElementById('iconColor').value='#000000'" title="Black"></button>
+                                <button type="button" class="color-preset" style="background: #c41e3a" onclick="setIconColor('#c41e3a'); document.getElementById('iconColor').value='#c41e3a'" title="Christmas Red"></button>
+                                <button type="button" class="color-preset" style="background: #165b33" onclick="setIconColor('#165b33'); document.getElementById('iconColor').value='#165b33'" title="Christmas Green"></button>
+                                <button type="button" class="color-preset" style="background: #0066b2" onclick="setIconColor('#0066b2'); document.getElementById('iconColor').value='#0066b2'" title="Hanukkah Blue"></button>
+                                <button type="button" class="color-preset" style="background: #ffd700" onclick="setIconColor('#ffd700'); document.getElementById('iconColor').value='#ffd700'" title="Gold"></button>
+                                <button type="button" class="color-preset" style="background: #667eea" onclick="setIconColor('#667eea'); document.getElementById('iconColor').value='#667eea'" title="Purple"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emoji Picker -->
+                    <div class="icon-option-group">
+                        <label>Or Use Emoji:</label>
+                        <div class="emoji-picker-wrapper">
+                            <div class="emoji-picker-toggle" id="emojiPickerToggle" onclick="toggleEmojiPicker()">
+                                <span id="selectedEmojiPreview">Click to select emoji</span>
+                                <span class="emoji-picker-arrow">▼</span>
+                            </div>
+                            <div class="emoji-picker-dropdown" id="emojiPickerDropdown" style="display: none;">
+                                <emoji-picker id="emojiPicker"></emoji-picker>
+                            </div>
+                            <div class="emoji-picker-actions" id="emojiPickerActions" style="display: none;">
+                                <span id="selectedEmojiDisplay"></span>
+                                <button type="button" class="btn-clear-emoji" onclick="clearEmoji()" title="Clear emoji">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom SVG Upload -->
+                    <div class="icon-option-group">
+                        <label>Custom SVG:</label>
+                        <div class="custom-icon-upload">
+                            <input type="file" id="customIconInput" accept=".svg" style="display: none;">
+                            <button class="btn btn-secondary btn-small" onclick="document.getElementById('customIconInput').click()">Upload SVG</button>
+                            <span id="customIconName" class="custom-icon-name"></span>
+                            <button id="clearCustomIcon" class="btn-clear-icon" onclick="clearCustomIcon()" style="display: none;">×</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Live Label Preview -->
+                <div class="label-preview-section">
+                    <div class="label-preview-header">
+                        <h4>Label Preview</h4>
+                        <span class="preview-hint">Drag the icon to reposition it</span>
+                    </div>
+                    <div class="label-preview-container" id="labelPreviewContainer">
+                        <div class="label-preview" id="labelPreview">
+                            <!-- Snap guide lines -->
+                            <div class="snap-line snap-line-h" id="snapLineH"></div>
+                            <div class="snap-line snap-line-v" id="snapLineV"></div>
+
+                            <div class="preview-icon" id="previewIcon" draggable="true" style="display: none;">
+                                <span id="previewIconContent"></span>
+                            </div>
+                            <div class="preview-text" id="previewText">
+                                <div class="preview-name">Your Name</div>
+                                <div class="preview-address">123 Main Street</div>
+                                <div class="preview-city">City, State 12345</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-position-info" id="previewPositionInfo" style="display: none;">
+                        <span id="iconPositionInfo">Icon: Not selected</span>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="resetIconPosition()">Reset Position</button>
+                    </div>
+                    <div class="preview-controls" id="previewControls" style="display: none;">
+                        <div class="preview-control-row">
+                            <label for="iconPosition">Default Position:</label>
+                            <select id="iconPosition" onchange="setIconPosition(this.value)">
+                                <option value="left">Left of text</option>
+                                <option value="right">Right of text</option>
+                            </select>
+                        </div>
+                        <div class="preview-control-row">
+                            <label class="switch-label">
+                                <span class="switch-text">Snap to center</span>
+                                <div class="switch">
+                                    <input type="checkbox" id="snapToggle" checked onchange="toggleSnap(this.checked)">
+                                    <span class="switch-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-buttons" style="margin-top: 15px;">
                     <button class="btn btn-generate" onclick="generateReturnLabels()" style="flex: 2;">Generate Full Sheet</button>
                     <button class="btn btn-secondary" onclick="clearReturnForm()">Clear</button>

@@ -61,6 +61,862 @@ h1 {
     border-color: #667eea;
 }
 
+/* Skip Labels Section */
+.skip-labels-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    background: #fff8e6;
+    border-radius: 8px;
+    border: 1px solid #ffe0a3;
+}
+
+.skip-labels-section > label {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.skip-labels-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.skip-labels-control input {
+    width: 80px;
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.skip-labels-control input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.skip-labels-hint {
+    font-size: 12px;
+    color: #856404;
+}
+
+.btn-reset-skip {
+    padding: 6px 12px;
+    border: 1px solid #e0e0e0;
+    background: #f8f9fa;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.btn-reset-skip:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    color: #333;
+}
+
+/* Font Selector Row */
+.font-selector-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.font-selector-row > label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    white-space: nowrap;
+}
+
+.font-selector-row select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+}
+
+.font-selector-row select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Style Options Section */
+.style-options-section {
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.style-options-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.style-options-header:hover {
+    background: #eef0f2;
+}
+
+.style-options-title {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.style-options-selected {
+    font-size: 13px;
+    color: #667eea;
+    font-weight: 500;
+    margin-left: 8px;
+    flex: 1;
+}
+
+.style-options-toggle {
+    font-size: 18px;
+    font-weight: bold;
+    color: #667eea;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.style-options-content {
+    display: none;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+}
+
+.style-options-content.active {
+    display: block;
+}
+
+.style-option-group {
+    margin-bottom: 15px;
+}
+
+.style-option-group:last-child {
+    margin-bottom: 0;
+}
+
+.style-option-group > label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.style-option-group select {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    background: white;
+}
+
+.style-option-group select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Icon Selector */
+.icon-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.icon-option {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    color: #666;
+}
+
+.icon-option:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.icon-option.selected {
+    border-color: #667eea;
+    background: #667eea;
+    color: white;
+}
+
+.icon-option svg {
+    width: 22px;
+    height: 22px;
+}
+
+.icon-option .icon-none {
+    font-size: 10px;
+    font-weight: 500;
+    color: inherit;
+}
+
+/* Custom Icon Upload */
+.custom-icon-upload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.custom-icon-name {
+    font-size: 12px;
+    color: #666;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-clear-icon {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-clear-icon:hover {
+    background: #c82333;
+}
+
+/* Color Picker */
+.color-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.color-picker-row input[type="color"] {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.color-picker-row input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker-row input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+.color-presets {
+    display: flex;
+    gap: 6px;
+}
+
+.color-preset {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.color-preset:hover {
+    transform: scale(1.15);
+    border-color: #667eea;
+}
+
+/* Emoji Input */
+.emoji-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.emoji-input-row input[type="text"] {
+    width: 80px;
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.emoji-input-row input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.emoji-presets {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.emoji-preset {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.emoji-preset:hover {
+    transform: scale(1.15);
+    border-color: #667eea;
+}
+
+/* Emoji Picker */
+.emoji-picker-wrapper {
+    position: relative;
+}
+
+.emoji-picker-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.emoji-picker-toggle:hover {
+    border-color: #667eea;
+}
+
+.emoji-picker-toggle.active {
+    border-color: #667eea;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#selectedEmojiPreview {
+    font-size: 14px;
+    color: #666;
+}
+
+#selectedEmojiPreview.has-emoji {
+    font-size: 24px;
+}
+
+.emoji-picker-arrow {
+    font-size: 10px;
+    color: #888;
+    transition: transform 0.2s;
+}
+
+.emoji-picker-toggle.active .emoji-picker-arrow {
+    transform: rotate(180deg);
+}
+
+.emoji-picker-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: white;
+    border: 2px solid #667eea;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 320px;
+    max-width: 100%;
+}
+
+emoji-picker {
+    --emoji-size: 1.4rem;
+    --num-columns: 8;
+    --emoji-padding: 0.25rem;
+    --category-emoji-size: 1.1rem;
+    --input-border-radius: 6px;
+    --outline-color: #667eea;
+    --border-color: transparent;
+    --background: white;
+    --input-font-color: #333;
+    --input-placeholder-color: #999;
+    height: 300px;
+}
+
+.emoji-picker-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f0f4ff;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+#selectedEmojiDisplay {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #333;
+}
+
+#selectedEmojiDisplay .emoji-large {
+    font-size: 24px;
+}
+
+.btn-clear-emoji {
+    padding: 6px 14px;
+    border: 1px solid #dc3545;
+    background: white;
+    color: #dc3545;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-clear-emoji:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Icon Options Section (Return Labels) */
+.icon-options-section {
+    margin-top: 20px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    /* overflow visible to allow emoji picker dropdown */
+}
+
+.icon-options-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.icon-options-header:hover {
+    background: #f0f2ff;
+}
+
+.icon-options-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.icon-options-toggle {
+    font-size: 16px;
+    color: #667eea;
+    font-weight: bold;
+    width: 20px;
+    text-align: center;
+}
+
+.icon-options-content {
+    padding: 0 15px 15px 15px;
+    overflow: visible;
+}
+
+.icon-options-info {
+    margin: 0 0 15px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.icon-option-group {
+    margin-bottom: 15px;
+}
+
+.icon-option-group:last-child {
+    margin-bottom: 0;
+}
+
+.icon-option-group > label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+/* Font selection row */
+.font-select-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.font-preview-text {
+    font-size: 14px;
+    color: #333;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Font hint in style options */
+.font-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+}
+
+/* Label Preview Section */
+.label-preview-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.label-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.label-preview-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 14px;
+}
+
+.preview-hint {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+}
+
+.label-preview-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background: #e9ecef;
+    border-radius: 6px;
+}
+
+.label-preview {
+    position: relative;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    /* Default size for Avery 8160 (2.625" x 1" at ~96dpi scale) */
+    width: 252px;
+    height: 96px;
+    /* No padding - icon and text positioning must match PDF exactly */
+}
+
+.preview-icon {
+    position: absolute;
+    cursor: move;
+    user-select: none;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.2s;
+}
+
+.preview-icon:hover {
+    box-shadow: 0 0 0 2px #667eea;
+    border-radius: 4px;
+}
+
+.preview-icon.dragging {
+    opacity: 0.8;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.preview-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.preview-icon span {
+    font-size: 32px;
+    line-height: 1;
+}
+
+.preview-text {
+    position: absolute;
+    font-family: Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+
+.preview-name {
+    font-weight: bold;
+    font-size: 11px;
+    color: #333;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.preview-address,
+.preview-city {
+    font-size: 10px;
+    color: #333;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.preview-position-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Snap Lines */
+.snap-line {
+    position: absolute;
+    background: #667eea;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    z-index: 5;
+}
+
+.snap-line.visible {
+    opacity: 1;
+}
+
+.snap-line-h {
+    left: 0;
+    right: 0;
+    height: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 3px #667eea;
+}
+
+.snap-line-v {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 3px #667eea;
+}
+
+.preview-icon.snapped {
+    transition: left 0.1s, top 0.1s;
+}
+
+/* Preview Controls */
+.preview-controls {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-control-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #555;
+}
+
+.preview-control-row label {
+    white-space: nowrap;
+}
+
+.preview-control-row select {
+    padding: 6px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+}
+
+.preview-control-row select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* iOS-style Toggle Switch */
+.switch-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.switch-text {
+    user-select: none;
+}
+
+.switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.switch input:checked + .switch-slider {
+    background-color: #667eea;
+}
+
+.switch input:checked + .switch-slider:before {
+    transform: translateX(20px);
+}
+
+.switch input:focus + .switch-slider {
+    box-shadow: 0 0 1px #667eea;
+}
+
+.preview-control-row input[type="range"] {
+    flex: 1;
+    max-width: 150px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e0e0e0;
+    border-radius: 3px;
+    outline: none;
+}
+
+.preview-control-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.preview-control-row input[type="range"]::-webkit-slider-thumb:hover {
+    background: #5568d3;
+}
+
+.preview-control-row input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+}
+
+#paddingValue {
+    min-width: 35px;
+    font-weight: 500;
+    color: #667eea;
+}
+
 /* Tab Navigation */
 .input-tabs {
     display: flex;
@@ -805,6 +1661,84 @@ h1 {
 
     .region-info {
         margin-left: 0;
+    }
+
+    .skip-labels-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .skip-labels-control {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .skip-labels-control input {
+        width: 100%;
+    }
+
+    .style-option-group select {
+        max-width: 100%;
+    }
+
+    .icon-selector {
+        gap: 6px;
+    }
+
+    .icon-option {
+        width: 36px;
+        height: 36px;
+    }
+
+    .icon-option svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .custom-icon-upload {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Emoji picker responsive */
+    emoji-picker {
+        --num-columns: 6;
+        --emoji-size: 1.2rem;
+    }
+
+    .label-preview-container {
+        padding: 15px;
+        overflow-x: auto;
+    }
+
+    .label-preview-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .preview-position-info {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .preview-controls {
+        gap: 12px;
+    }
+
+    .preview-control-row {
+        flex-wrap: wrap;
+    }
+
+    .preview-control-row input[type="range"] {
+        max-width: none;
+        width: 100%;
+        order: 3;
+        margin-top: 5px;
     }
 
     /* Preview header - stack title and stats vertically on mobile */

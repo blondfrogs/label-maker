@@ -42,6 +42,840 @@ const UPLOAD_STORAGE_KEY = 'labelMakerUploadedAddresses';
 const RETURN_STORAGE_KEY = 'labelMakerReturnAddress';
 const REGION_STORAGE_KEY = 'labelMakerRegion';
 
+// Style options state
+let selectedIcon = 'none';
+let selectedFont = 'helvetica';
+let customIconData = null; // Stores custom SVG as data URL
+let iconColor = '#000000'; // Default black
+let currentEmoji = ''; // Stores selected emoji
+
+// Icon position state (as percentage of label dimensions)
+let iconPosX = 0.03; // 3% from left edge (default left position)
+let iconPosY = 0.5;  // 50% from top (centered vertically)
+let useCustomIconPosition = false; // Whether user has dragged the icon
+
+// Snap and padding settings
+let snapEnabled = true; // Whether snap-to-center is enabled
+let iconTextPadding = 0; // No padding between icon and text
+
+// Preview scale factor (pixels per inch for preview display)
+const PREVIEW_SCALE = 96;
+
+// Preset icon SVG paths (24x24 viewBox)
+const PRESET_ICONS = {
+    gift: 'M20 7h-1.1A5.5 5.5 0 0 0 12 2.6 5.5 5.5 0 0 0 5.1 7H4a2 2 0 0 0-2 2v2a1 1 0 0 0 1 1h1v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7h1a1 1 0 0 0 1-1V9a2 2 0 0 0-2-2zm-8-2.7a3.5 3.5 0 0 1 3.5 3.2l.1.5H12V4.3zM8.5 7.5A3.5 3.5 0 0 1 12 4.3V8H8.4l.1-.5zM11 19H6v-7h5v7zm0-9H4V9h7v1zm2 9v-7h5v7h-5zm7-9h-7V9h7v1z',
+    heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+    star: 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z',
+    snowflake: 'M11 1v4.07A8 8 0 0 0 5.07 11H1v2h4.07A8 8 0 0 0 11 18.93V23h2v-4.07A8 8 0 0 0 18.93 13H23v-2h-4.07A8 8 0 0 0 13 5.07V1h-2zm1 6a5 5 0 1 1 0 10 5 5 0 0 1 0-10z',
+    tree: 'M12 2L4 12h3v4H4l8 6 8-6h-3v-4h3L12 2zm0 3.5L16.5 11H14v4h-4v-4H7.5L12 5.5z',
+    home: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+    mail: 'M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z',
+    flower: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-14C9.5 2 8 4.5 8 6c0 1.2.5 2.3 1.3 3A6 6 0 0 0 6 12c0 1.2.3 2.3 1 3.3-.8.7-1.3 1.8-1.3 3 0 2.5 1.5 5 4.3 5 1.5 0 2.7-1 3.3-1.7.6.7 1.8 1.7 3.3 1.7 2.8 0 4.3-2.5 4.3-5 0-1.2-.5-2.3-1.3-3 .7-1 1-2.1 1-3.3a6 6 0 0 0-3.3-5.3c.8-.7 1.3-1.8 1.3-3 0-2.5-1.5-5-4.3-5-1.5 0-2.7 1-3.3 1.7-.6-.7-1.8-1.7-3.3-1.7z'
+};
+
+// Toggle style options section
+function toggleStyleOptions(section = 'return') {
+    const prefix = section === 'global' ? 'global' : '';
+    const contentId = prefix ? 'globalStyleOptionsContent' : 'styleOptionsContent';
+    const toggleId = prefix ? 'globalStyleOptionsToggle' : 'styleOptionsToggle';
+    const selectedId = prefix ? 'globalStyleOptionsSelected' : 'styleOptionsSelected';
+
+    const content = document.getElementById(contentId);
+    const toggle = document.getElementById(toggleId);
+    const selected = document.getElementById(selectedId);
+
+    if (!content || !toggle) return;
+
+    content.classList.toggle('active');
+    const isActive = content.classList.contains('active');
+    toggle.textContent = isActive ? '−' : '+';
+    // Hide selected font text when expanded, show when collapsed
+    if (selected) {
+        selected.style.display = isActive ? 'none' : 'inline';
+    }
+}
+
+// Update font from global selector and sync to return section
+function updateFontFromGlobal() {
+    const globalSelect = document.getElementById('globalFontSelect');
+    const returnSelect = document.getElementById('fontSelect');
+    if (globalSelect && returnSelect) {
+        returnSelect.value = globalSelect.value;
+    }
+    updateFontPreview();
+    updateGlobalFontPreview();
+}
+
+// Update font from return section selector and sync to global
+function updateFontFromReturn() {
+    const globalSelect = document.getElementById('globalFontSelect');
+    const returnSelect = document.getElementById('fontSelect');
+    if (globalSelect && returnSelect) {
+        globalSelect.value = returnSelect.value;
+    }
+    updateFontPreview();
+    updateGlobalFontPreview();
+}
+
+// Update global font preview text
+function updateGlobalFontPreview() {
+    const select = document.getElementById('globalFontSelect');
+    const previewText = document.getElementById('globalFontPreviewText');
+    const selectedText = document.getElementById('globalStyleOptionsSelected');
+    if (!select) return;
+
+    const fontMap = {
+        'helvetica': 'Helvetica, Arial, sans-serif',
+        'times': '"Times New Roman", Times, serif',
+        'courier': '"Courier New", Courier, monospace'
+    };
+
+    const fontNames = {
+        'helvetica': 'Helvetica',
+        'times': 'Times New Roman',
+        'courier': 'Courier'
+    };
+
+    if (previewText) {
+        previewText.style.fontFamily = fontMap[select.value] || fontMap['helvetica'];
+    }
+
+    if (selectedText) {
+        selectedText.textContent = '(' + (fontNames[select.value] || 'Helvetica') + ')';
+    }
+}
+
+// Select icon
+function selectIcon(iconName) {
+    selectedIcon = iconName;
+
+    // Update UI
+    document.querySelectorAll('.icon-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.icon === iconName);
+    });
+
+    // If selecting a preset icon, clear custom icon and emoji
+    if (iconName !== 'custom') {
+        customIconData = null;
+        document.getElementById('customIconName').textContent = '';
+        document.getElementById('clearCustomIcon').style.display = 'none';
+    }
+    if (iconName !== 'emoji') {
+        currentEmoji = '';
+        // Reset emoji picker UI
+        const preview = document.getElementById('selectedEmojiPreview');
+        if (preview) {
+            preview.textContent = 'Click to select emoji';
+            preview.classList.remove('has-emoji');
+        }
+        const actions = document.getElementById('emojiPickerActions');
+        if (actions) actions.style.display = 'none';
+    }
+
+    // Always reset to default centered position when selecting an icon
+    // User must explicitly drag to use custom position
+    useCustomIconPosition = false;
+    iconPosX = 0.5;
+    iconPosY = 0.5;
+
+    // Update preview and controls visibility
+    updatePreviewControlsVisibility();
+    updateLabelPreview();
+}
+
+// Get selected icon position
+function getIconPosition() {
+    const select = document.getElementById('iconPosition');
+    return select ? select.value : 'left';
+}
+
+// Set icon position and update preview
+function setIconPosition(position) {
+    // Reset to default position based on selection
+    useCustomIconPosition = false;
+    if (position === 'left') {
+        iconPosX = 0.03;
+    } else {
+        iconPosX = 0.97;
+    }
+    iconPosY = 0.5;
+    updateLabelPreview();
+}
+
+// Get selected font (check both selectors, they should be in sync)
+function getSelectedFont() {
+    const select = document.getElementById('fontSelect');
+    const globalSelect = document.getElementById('globalFontSelect');
+    return (select && select.value) || (globalSelect && globalSelect.value) || 'helvetica';
+}
+
+// Update font preview text to show selected font
+function updateFontPreview() {
+    const select = document.getElementById('fontSelect');
+    const previewText = document.getElementById('fontPreviewText');
+    const selectedText = document.getElementById('styleOptionsSelected');
+    if (!select) return;
+
+    const fontMap = {
+        'helvetica': 'Helvetica, Arial, sans-serif',
+        'times': '"Times New Roman", Times, serif',
+        'courier': '"Courier New", Courier, monospace'
+    };
+
+    const fontNames = {
+        'helvetica': 'Helvetica',
+        'times': 'Times New Roman',
+        'courier': 'Courier'
+    };
+
+    if (previewText) {
+        previewText.style.fontFamily = fontMap[select.value] || fontMap['helvetica'];
+    }
+
+    // Update the header text to show selected font
+    if (selectedText) {
+        selectedText.textContent = '(' + (fontNames[select.value] || 'Helvetica') + ')';
+    }
+
+    updateLabelPreview();
+}
+
+// Handle custom SVG upload
+function setupCustomIconUpload() {
+    const input = document.getElementById('customIconInput');
+    if (input) {
+        input.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const svgText = await file.text();
+
+                // Convert SVG to data URL for use in PDF
+                const blob = new Blob([svgText], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+
+                // Create an image to convert SVG to PNG (jsPDF works better with raster images)
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 100;
+                    canvas.height = 100;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, 100, 100);
+                    customIconData = canvas.toDataURL('image/png');
+                    URL.revokeObjectURL(url);
+
+                    // Update UI
+                    selectedIcon = 'custom';
+                    document.querySelectorAll('.icon-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    document.getElementById('customIconName').textContent = file.name;
+                    document.getElementById('clearCustomIcon').style.display = '';
+                };
+                img.onerror = () => {
+                    alert('Error loading SVG. Please make sure it\'s a valid SVG file.');
+                    URL.revokeObjectURL(url);
+                };
+                img.src = url;
+
+            } catch (error) {
+                console.error('Error reading SVG file:', error);
+                alert('Error reading file. Please try again.');
+            }
+
+            // Reset input
+            input.value = '';
+        });
+    }
+}
+
+// Clear custom icon
+function clearCustomIcon() {
+    customIconData = null;
+    selectedIcon = 'none';
+    document.getElementById('customIconName').textContent = '';
+    document.getElementById('clearCustomIcon').style.display = 'none';
+
+    // Select "none" option
+    document.querySelectorAll('.icon-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.icon === 'none');
+    });
+
+    // Update preview and controls visibility
+    updatePreviewControlsVisibility();
+    updateLabelPreview();
+}
+
+// Convert preset icon SVG path to data URL for PDF (with color support)
+function getPresetIconDataUrl(iconName, color = null) {
+    const path = PRESET_ICONS[iconName];
+    if (!path) return null;
+
+    const fillColor = color || iconColor || '#000000';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100" height="100"><path fill="${fillColor}" d="${path}"/></svg>`;
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 100, 100);
+            const dataUrl = canvas.toDataURL('image/png');
+            URL.revokeObjectURL(url);
+            resolve(dataUrl);
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve(null);
+        };
+        img.src = url;
+    });
+}
+
+// Convert emoji to data URL for PDF
+function getEmojiDataUrl(emoji) {
+    return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 100;
+        canvas.height = 100;
+        const ctx = canvas.getContext('2d');
+
+        // Draw emoji centered on canvas
+        ctx.font = '80px Arial, "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(emoji, 50, 55);
+
+        resolve(canvas.toDataURL('image/png'));
+    });
+}
+
+// Handle icon color change
+function setIconColor(color) {
+    iconColor = color;
+    // Regenerate cached icons with new color
+    iconCache = {};
+    preloadIcons();
+    updateLabelPreview();
+}
+
+// Toggle emoji picker dropdown
+function toggleEmojiPicker() {
+    const dropdown = document.getElementById('emojiPickerDropdown');
+    const toggle = document.getElementById('emojiPickerToggle');
+    const isVisible = dropdown.style.display !== 'none';
+
+    dropdown.style.display = isVisible ? 'none' : 'block';
+    toggle.classList.toggle('active', !isVisible);
+}
+
+// Handle emoji selection from picker
+function selectEmoji(emoji) {
+    if (!emoji) {
+        clearEmoji();
+        return;
+    }
+    currentEmoji = emoji;
+    selectedIcon = 'emoji';
+
+    // Reset to default centered position
+    useCustomIconPosition = false;
+    iconPosX = 0.5;
+    iconPosY = 0.5;
+
+    // Update UI - deselect all icons
+    document.querySelectorAll('.icon-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+
+    // Update preview text in toggle button
+    const preview = document.getElementById('selectedEmojiPreview');
+    if (preview) {
+        preview.textContent = emoji;
+        preview.classList.add('has-emoji');
+    }
+
+    // Show actions and update display
+    const actions = document.getElementById('emojiPickerActions');
+    const display = document.getElementById('selectedEmojiDisplay');
+    if (actions) actions.style.display = 'flex';
+    if (display) {
+        display.innerHTML = `Selected: <span class="emoji-large">${emoji}</span>`;
+    }
+
+    // Close the dropdown
+    const dropdown = document.getElementById('emojiPickerDropdown');
+    const toggle = document.getElementById('emojiPickerToggle');
+    if (dropdown) dropdown.style.display = 'none';
+    if (toggle) toggle.classList.remove('active');
+
+    // Update preview and controls visibility
+    updatePreviewControlsVisibility();
+    updateLabelPreview();
+}
+
+// Clear emoji
+function clearEmoji() {
+    currentEmoji = '';
+    if (selectedIcon === 'emoji') {
+        selectedIcon = 'none';
+        document.querySelectorAll('.icon-option').forEach(opt => {
+            opt.classList.toggle('selected', opt.dataset.icon === 'none');
+        });
+    }
+
+    // Reset preview text in toggle button
+    const preview = document.getElementById('selectedEmojiPreview');
+    if (preview) {
+        preview.textContent = 'Click to select emoji';
+        preview.classList.remove('has-emoji');
+    }
+
+    // Hide actions
+    const actions = document.getElementById('emojiPickerActions');
+    if (actions) actions.style.display = 'none';
+
+    // Update preview and controls visibility
+    updatePreviewControlsVisibility();
+    updateLabelPreview();
+}
+
+// Setup emoji picker event listener
+function setupEmojiPicker() {
+    const picker = document.getElementById('emojiPicker');
+    if (picker) {
+        picker.addEventListener('emoji-click', event => {
+            selectEmoji(event.detail.unicode);
+        });
+    }
+
+    // Close picker when clicking outside
+    document.addEventListener('click', (e) => {
+        const wrapper = document.querySelector('.emoji-picker-wrapper');
+        const dropdown = document.getElementById('emojiPickerDropdown');
+        const toggle = document.getElementById('emojiPickerToggle');
+
+        if (wrapper && !wrapper.contains(e.target)) {
+            if (dropdown) dropdown.style.display = 'none';
+            if (toggle) toggle.classList.remove('active');
+        }
+    });
+}
+
+// Cache for icon data URLs
+let iconCache = {};
+
+// Update the label preview
+function updateLabelPreview() {
+    const preview = document.getElementById('labelPreview');
+    const previewText = document.getElementById('previewText');
+    const previewIcon = document.getElementById('previewIcon');
+    const previewIconContent = document.getElementById('previewIconContent');
+    const iconPositionInfo = document.getElementById('iconPositionInfo');
+
+    if (!preview) return;
+
+    // Update preview size based on template
+    const template = TEMPLATES[currentTemplate];
+    if (template) {
+        preview.style.width = (template.width * PREVIEW_SCALE) + 'px';
+        preview.style.height = (template.height * PREVIEW_SCALE) + 'px';
+    }
+
+    // Update text content from form
+    const title = document.getElementById('returnTitle')?.value || '';
+    const firstName = document.getElementById('returnFirst')?.value || '';
+    const lastName = document.getElementById('returnLast')?.value || '';
+    const suffix = document.getElementById('returnSuffix')?.value || '';
+    const address1 = document.getElementById('returnAddress1')?.value || '123 Main Street';
+    const address2 = document.getElementById('returnAddress2')?.value || '';
+    const city = document.getElementById('returnCity')?.value || 'City';
+    const state = document.getElementById('returnState')?.value || 'State';
+    const postalCode = document.getElementById('returnPostalCode')?.value || '12345';
+
+    // Build name line
+    const nameParts = [title, firstName, lastName, suffix].filter(p => p.trim());
+    const nameText = nameParts.length > 0 ? nameParts.join(' ') : 'Your Name';
+
+    // Build address line
+    const addressText = address2 ? `${address1}, ${address2}` : (address1 || '123 Main Street');
+
+    // Build city line
+    const cityText = `${city || 'City'}, ${state || 'ST'} ${postalCode || '12345'}`;
+
+    // Update text in preview
+    previewText.innerHTML = `
+        <div class="preview-name">${escapeHtml(nameText)}</div>
+        <div class="preview-address">${escapeHtml(addressText)}</div>
+        <div class="preview-city">${escapeHtml(cityText)}</div>
+    `;
+
+    // Update font family
+    const fontFamily = getSelectedFont();
+    const fontMap = {
+        'helvetica': 'Helvetica, Arial, sans-serif',
+        'times': '"Times New Roman", Times, serif',
+        'courier': 'Courier, monospace'
+    };
+    previewText.style.fontFamily = fontMap[fontFamily] || fontMap.helvetica;
+
+    // Calculate common dimensions
+    const labelWidth = template.width * PREVIEW_SCALE;
+    const labelHeight = template.height * PREVIEW_SCALE;
+    const edgePadding = Math.round(0.06 * PREVIEW_SCALE);
+
+    // Update icon
+    const hasIcon = selectedIcon !== 'none';
+    if (hasIcon) {
+        previewIcon.style.display = 'flex';
+
+        // Calculate icon size (similar to PDF logic)
+        const iconSize = Math.min(template.height * 0.6, template.width * 0.2, 0.5) * PREVIEW_SCALE;
+        previewIcon.style.width = iconSize + 'px';
+        previewIcon.style.height = iconSize + 'px';
+
+        // Center icon vertically - this must match PDF calculation exactly
+        const verticalCenter = (labelHeight / 2) - (iconSize / 2);
+
+        if (useCustomIconPosition) {
+            // Use custom dragged position
+            let iconLeft = iconPosX * labelWidth - iconSize / 2;
+            let iconTop = iconPosY * labelHeight - iconSize / 2;
+            // Constrain to label bounds with padding (matching PDF behavior)
+            iconLeft = Math.max(edgePadding, Math.min(labelWidth - edgePadding - iconSize, iconLeft));
+            iconTop = Math.max(edgePadding, Math.min(labelHeight - edgePadding - iconSize, iconTop));
+            previewIcon.style.left = iconLeft + 'px';
+            previewIcon.style.top = iconTop + 'px';
+        } else {
+            // Use default position based on iconPosition setting
+            const pos = getIconPosition();
+            if (pos === 'left') {
+                previewIcon.style.left = edgePadding + 'px';
+                previewIcon.style.top = verticalCenter + 'px';
+            } else {
+                previewIcon.style.left = (labelWidth - iconSize - edgePadding) + 'px';
+                previewIcon.style.top = verticalCenter + 'px';
+            }
+        }
+
+        // Update icon content
+        if (selectedIcon === 'emoji' && currentEmoji) {
+            previewIconContent.innerHTML = currentEmoji;
+            previewIconContent.style.fontSize = (iconSize * 0.8) + 'px';
+        } else if (selectedIcon === 'custom' && customIconData) {
+            previewIconContent.innerHTML = `<img src="${customIconData}" style="width:100%;height:100%">`;
+        } else if (PRESET_ICONS[selectedIcon]) {
+            const path = PRESET_ICONS[selectedIcon];
+            previewIconContent.innerHTML = `<svg viewBox="0 0 24 24" style="width:100%;height:100%"><path fill="${iconColor}" d="${path}"/></svg>`;
+        }
+
+        // Update position info
+        if (useCustomIconPosition) {
+            iconPositionInfo.textContent = `Icon: Custom position (${Math.round(iconPosX * 100)}%, ${Math.round(iconPosY * 100)}%)`;
+        } else {
+            iconPositionInfo.textContent = `Icon: ${getIconPosition() === 'left' ? 'Left' : 'Right'} side`;
+        }
+
+        // Update text position based on icon location
+        const iconLeft = parseFloat(previewIcon.style.left) || 0;
+        const iconTop = parseFloat(previewIcon.style.top) || 0;
+        updatePreviewTextPosition(iconLeft, iconTop, iconSize, labelWidth, labelHeight);
+    } else {
+        previewIcon.style.display = 'none';
+        iconPositionInfo.textContent = 'Icon: Not selected';
+
+        // Reset text position when no icon - center text vertically
+        previewText.style.position = 'absolute';
+        previewText.style.left = edgePadding + 'px';
+        previewText.style.width = (labelWidth - edgePadding * 2) + 'px';
+        previewText.style.top = '0px';
+        previewText.style.marginLeft = '0';
+        previewText.style.marginRight = '0';
+        previewText.style.marginTop = '0';
+
+        // Center text vertically after layout
+        centerPreviewText(previewText, labelHeight);
+    }
+}
+
+// Helper to center text vertically in preview
+function centerPreviewText(textElement, labelHeight) {
+    setTimeout(() => {
+        const textHeight = textElement.offsetHeight;
+        const centeredTop = (labelHeight - textHeight) / 2;
+        textElement.style.top = Math.max(0, centeredTop) + 'px';
+    }, 10);
+}
+
+// Get start padding based on label height (matches PDF logic)
+function getStartPadding(labelHeight) {
+    if (labelHeight <= 0.5) return 0.06;
+    if (labelHeight <= 1.0) return 0.15;
+    if (labelHeight <= 1.5) return 0.2;
+    return 0.25;
+}
+
+// Reset icon position to default
+function resetIconPosition() {
+    useCustomIconPosition = false;
+    iconPosX = 0.03;
+    iconPosY = 0.5;
+    updateLabelPreview();
+}
+
+// Toggle snap-to-center functionality
+function toggleSnap(enabled) {
+    snapEnabled = enabled;
+}
+
+// Toggle icon options section
+function toggleIconOptions() {
+    const content = document.getElementById('iconOptionsContent');
+    const toggle = document.getElementById('iconOptionsToggle');
+    if (content && toggle) {
+        const isHidden = content.style.display === 'none';
+        content.style.display = isHidden ? 'block' : 'none';
+        toggle.textContent = isHidden ? '−' : '+';
+    }
+}
+
+// Show/hide preview controls based on whether icon is selected
+function updatePreviewControlsVisibility() {
+    const hasIcon = selectedIcon !== 'none';
+    const positionInfo = document.getElementById('previewPositionInfo');
+    const controls = document.getElementById('previewControls');
+
+    if (positionInfo) positionInfo.style.display = hasIcon ? 'flex' : 'none';
+    if (controls) controls.style.display = hasIcon ? 'flex' : 'none';
+}
+
+// Snap threshold in pixels
+const SNAP_THRESHOLD = 8;
+
+// Setup drag and drop for icon positioning
+function setupIconDragDrop() {
+    const previewIcon = document.getElementById('previewIcon');
+    const labelPreview = document.getElementById('labelPreview');
+    const snapLineH = document.getElementById('snapLineH');
+    const snapLineV = document.getElementById('snapLineV');
+
+    if (!previewIcon || !labelPreview) return;
+
+    let isDragging = false;
+    let startX, startY;
+    let iconStartX, iconStartY;
+
+    function handleDragMove(clientX, clientY) {
+        const rect = labelPreview.getBoundingClientRect();
+        const template = TEMPLATES[currentTemplate];
+        const iconSize = Math.min(template.height * 0.6, template.width * 0.2, 0.5) * PREVIEW_SCALE;
+
+        // Calculate new position
+        let newX = iconStartX + (clientX - startX);
+        let newY = iconStartY + (clientY - startY);
+
+        // Use same edge padding as PDF (0.06 inches * 96 DPI)
+        const edgePadding = Math.round(0.06 * PREVIEW_SCALE);
+
+        // Constrain to label bounds with padding (matching PDF behavior)
+        newX = Math.max(edgePadding, Math.min(rect.width - edgePadding - iconSize, newX));
+        newY = Math.max(edgePadding, Math.min(rect.height - edgePadding - iconSize, newY));
+
+        // Minimum text width to prevent wrapping (40% of label width)
+        const minTextWidth = rect.width * 0.4;
+        const currentIconPadding = iconTextPadding;
+
+        // Calculate where the icon center will be
+        const iconCenterX = newX + iconSize / 2;
+        const labelCenterX = rect.width / 2;
+
+        // If icon is on left side, limit how far right it can go
+        if (iconCenterX < labelCenterX) {
+            const maxIconRight = rect.width - edgePadding - minTextWidth - currentIconPadding;
+            if (newX + iconSize > maxIconRight) {
+                newX = maxIconRight - iconSize;
+            }
+        }
+        // If icon is on right side, limit how far left it can go
+        else if (iconCenterX > labelCenterX) {
+            const minIconLeft = edgePadding + minTextWidth + currentIconPadding;
+            if (newX < minIconLeft) {
+                newX = minIconLeft;
+            }
+        }
+
+        // Re-apply edge constraints after text width constraints
+        newX = Math.max(edgePadding, Math.min(rect.width - edgePadding - iconSize, newX));
+
+        // Calculate center of icon (update after constraints)
+        const finalIconCenterX = newX + iconSize / 2;
+        const iconCenterY = newY + iconSize / 2;
+        const labelCenterY = rect.height / 2;
+
+        // Snap to center horizontally (only if snap is enabled)
+        let snappedH = false;
+        if (snapEnabled && Math.abs(finalIconCenterX - labelCenterX) < SNAP_THRESHOLD) {
+            newX = labelCenterX - iconSize / 2;
+            snappedH = true;
+        }
+
+        // Snap to center vertically (only if snap is enabled)
+        let snappedV = false;
+        if (snapEnabled && Math.abs(iconCenterY - labelCenterY) < SNAP_THRESHOLD) {
+            newY = labelCenterY - iconSize / 2;
+            snappedV = true;
+        }
+
+        // Show/hide snap lines (only show when snap is enabled)
+        if (snapLineV) snapLineV.classList.toggle('visible', snapEnabled && snappedH);
+        if (snapLineH) snapLineH.classList.toggle('visible', snapEnabled && snappedV);
+
+        // Update icon position
+        previewIcon.style.left = newX + 'px';
+        previewIcon.style.top = newY + 'px';
+
+        // Store as percentage (center of icon)
+        iconPosX = (newX + iconSize / 2) / rect.width;
+        iconPosY = (newY + iconSize / 2) / rect.height;
+        useCustomIconPosition = true;
+
+        // Update position info
+        const iconPositionInfo = document.getElementById('iconPositionInfo');
+        if (iconPositionInfo) {
+            let posText = `Icon: Custom (${Math.round(iconPosX * 100)}%, ${Math.round(iconPosY * 100)}%)`;
+            if (snappedH && snappedV) posText = 'Icon: Centered';
+            else if (snappedH) posText = 'Icon: Centered horizontally';
+            else if (snappedV) posText = 'Icon: Centered vertically';
+            iconPositionInfo.textContent = posText;
+        }
+
+        // Update text positioning based on icon location
+        updatePreviewTextPosition(newX, newY, iconSize, rect.width, rect.height);
+    }
+
+    function handleDragEnd() {
+        if (isDragging) {
+            isDragging = false;
+            previewIcon.classList.remove('dragging');
+            // Hide snap lines
+            if (snapLineV) snapLineV.classList.remove('visible');
+            if (snapLineH) snapLineH.classList.remove('visible');
+        }
+    }
+
+    previewIcon.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        previewIcon.classList.add('dragging');
+        startX = e.clientX;
+        startY = e.clientY;
+        iconStartX = parseFloat(previewIcon.style.left) || 0;
+        iconStartY = parseFloat(previewIcon.style.top) || 0;
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        handleDragMove(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('mouseup', handleDragEnd);
+
+    // Touch support
+    previewIcon.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        previewIcon.classList.add('dragging');
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        iconStartX = parseFloat(previewIcon.style.left) || 0;
+        iconStartY = parseFloat(previewIcon.style.top) || 0;
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        handleDragMove(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    document.addEventListener('touchend', handleDragEnd);
+}
+
+// Update text position in preview based on icon location
+function updatePreviewTextPosition(iconX, iconY, iconSize, labelWidth, labelHeight) {
+    const previewText = document.getElementById('previewText');
+    if (!previewText) return;
+
+    const template = TEMPLATES[currentTemplate];
+    const iconRight = iconX + iconSize;
+    const iconBottom = iconY + iconSize;
+    const iconCenterX = iconX + iconSize / 2;
+    const iconCenterY = iconY + iconSize / 2;
+
+    // Match PDF padding exactly: 0.06 inches * 96 DPI = ~6px
+    const edgePadding = Math.round(0.06 * PREVIEW_SCALE);
+    const currentIconPadding = iconTextPadding;
+
+    let textLeft, textWidth;
+
+    // Check if icon is horizontally centered
+    const isHorizontallyCentered = Math.abs(iconCenterX - labelWidth / 2) < SNAP_THRESHOLD;
+
+    if (isHorizontallyCentered) {
+        // Icon is horizontally centered - text goes full width below or above
+        textLeft = edgePadding;
+        textWidth = labelWidth - (edgePadding * 2);
+    } else if (iconCenterX < labelWidth / 2) {
+        // Icon is on left side - text to the right of icon
+        textLeft = iconRight + currentIconPadding;
+        textWidth = labelWidth - edgePadding - iconRight - currentIconPadding;
+    } else {
+        // Icon is on right side - text on left
+        textLeft = edgePadding;
+        textWidth = iconX - edgePadding - currentIconPadding;
+    }
+
+    // Apply horizontal positions first so we can measure text height
+    previewText.style.position = 'absolute';
+    previewText.style.left = textLeft + 'px';
+    previewText.style.width = textWidth + 'px';
+    previewText.style.top = '0px';
+    previewText.style.marginLeft = '0';
+    previewText.style.marginRight = '0';
+    previewText.style.marginTop = '0';
+
+    // Center text vertically after layout
+    if (isHorizontallyCentered && iconCenterY < labelHeight / 2) {
+        // Icon in top half, text goes below icon
+        previewText.style.top = (iconBottom + currentIconPadding) + 'px';
+    } else {
+        // Center text vertically in label
+        centerPreviewText(previewText, labelHeight);
+    }
+}
+
+// Setup return address form listeners for live preview
+function setupReturnAddressPreviewListeners() {
+    const fields = [
+        'returnTitle', 'returnFirst', 'returnLast', 'returnSuffix',
+        'returnAddress1', 'returnAddress2', 'returnCity', 'returnState',
+        'returnPostalCode', 'returnCountry'
+    ];
+
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', updateLabelPreview);
+        }
+    });
+}
+
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const status = document.getElementById('status');
@@ -54,7 +888,41 @@ templateSelect.addEventListener('change', (e) => {
     updateUploadFullSheetHint();
     updateUploadPreviewStats();
     updateReturnTemplateInfo();
+    updateSkipLabelsMax();
+    updateLabelPreview();
 });
+
+// Get the number of labels to skip
+function getSkipCount() {
+    const skipInput = document.getElementById('skipLabels');
+    const value = parseInt(skipInput.value, 10);
+    return isNaN(value) || value < 0 ? 0 : value;
+}
+
+// Update skip labels max based on template
+function updateSkipLabelsMax() {
+    const template = TEMPLATES[currentTemplate];
+    if (!template) return;
+    const labelsPerPage = template.cols * template.rows;
+    const skipInput = document.getElementById('skipLabels');
+    if (skipInput) {
+        skipInput.max = labelsPerPage - 1;
+        // Reset if current value exceeds max
+        if (parseInt(skipInput.value, 10) >= labelsPerPage) {
+            skipInput.value = labelsPerPage - 1;
+        }
+    }
+}
+
+// Reset skip labels to 0
+function resetSkipLabels() {
+    const skipInput = document.getElementById('skipLabels');
+    if (skipInput) {
+        skipInput.value = 0;
+        updateManualStats();
+        updateUploadPreviewStats();
+    }
+}
 
 // Region switching function
 function setRegion(region) {
@@ -216,7 +1084,67 @@ document.addEventListener('DOMContentLoaded', () => {
     loadReturnAddressFromStorage();
     setupAddress2Listeners();
     updateReturnTemplateInfo();
+    updateSkipLabelsMax();
+    setupSkipLabelsListener();
+    setupCustomIconUpload();
+    preloadIcons();
+    setupReturnAddressPreviewListeners();
+    setupIconDragDrop();
+    setupStyleOptionListeners();
+    setupEmojiPicker();
+    updateLabelPreview();
+
+    // Re-center preview text after fonts and layout are fully loaded
+    setTimeout(() => updateLabelPreview(), 100);
 });
+
+// Also update preview after all resources (fonts, images) are loaded
+window.addEventListener('load', () => {
+    updateLabelPreview();
+});
+
+// Setup listeners for style options to update preview
+function setupStyleOptionListeners() {
+    // Font select - initialize preview and add listener
+    const fontSelect = document.getElementById('fontSelect');
+    const globalFontSelect = document.getElementById('globalFontSelect');
+    if (fontSelect) {
+        updateFontPreview(); // Initialize font preview on load
+    }
+    if (globalFontSelect) {
+        updateGlobalFontPreview(); // Initialize global font preview on load
+    }
+
+    // Icon position
+    const iconPosition = document.getElementById('iconPosition');
+    if (iconPosition) {
+        iconPosition.addEventListener('change', () => {
+            // When changing position via dropdown, reset custom position
+            useCustomIconPosition = false;
+            updateLabelPreview();
+        });
+    }
+}
+
+// Preload all preset icons to cache
+async function preloadIcons() {
+    for (const iconName of Object.keys(PRESET_ICONS)) {
+        if (!iconCache[iconName]) {
+            iconCache[iconName] = await getPresetIconDataUrl(iconName);
+        }
+    }
+}
+
+// Setup skip labels input listener
+function setupSkipLabelsListener() {
+    const skipInput = document.getElementById('skipLabels');
+    if (skipInput) {
+        skipInput.addEventListener('input', () => {
+            updateManualStats();
+            updateUploadPreviewStats();
+        });
+    }
+}
 
 // Setup address2 field listeners to show/hide same-line option
 function setupAddress2Listeners() {
@@ -363,8 +1291,9 @@ function getReturnAddressFromForm() {
     const state = document.getElementById('returnState').value.trim();
     const postalCode = document.getElementById('returnPostalCode').value.trim();
 
-    // State/County is optional (supports international addresses)
-    if (!firstName || !lastName || !address1 || !city || !postalCode) {
+    // For return address: First name is optional (allows "The Smith Family" style)
+    // State/County is also optional (supports international addresses)
+    if (!lastName || !address1 || !city || !postalCode) {
         return null;
     }
 
@@ -384,7 +1313,7 @@ function getReturnAddressFromForm() {
 }
 
 // Generate return address labels (full sheet)
-function generateReturnLabels() {
+async function generateReturnLabels() {
     const returnAddress = getReturnAddressFromForm();
     if (!returnAddress) {
         alert('Please fill in all required fields (marked with *)');
@@ -396,17 +1325,29 @@ function generateReturnLabels() {
 
     const template = TEMPLATES[currentTemplate];
     const labelsPerPage = template.cols * template.rows;
+    const skipCount = getSkipCount();
 
-    // Fill entire sheet with the same address
-    const addressesToPrint = Array(labelsPerPage).fill(returnAddress);
+    // Fill remaining positions after skip with the same address
+    const fillCount = labelsPerPage - skipCount;
+    let addressesToPrint = Array(fillCount).fill(returnAddress);
 
-    showStatus(`Generating ${labelsPerPage} return address labels...`, 'processing');
+    // Prepend empty entries for skipped labels
+    if (skipCount > 0) {
+        addressesToPrint = [...Array(skipCount).fill(null), ...addressesToPrint];
+    }
+
+    showStatus(`Generating ${fillCount} return address labels (skipping ${skipCount})...`, 'processing');
 
     try {
-        const pdf = generateLabelsPDF(addressesToPrint);
+        const pdf = await generateLabelsPDF(addressesToPrint);
         pdf.save(`${currentTemplate}-return-labels.pdf`);
 
-        showStatus(`✓ Success! Generated ${labelsPerPage} return address labels (1 page). PDF download started.`, 'success');
+        let successMsg = `✓ Success! Generated ${fillCount} return address labels (1 page).`;
+        if (skipCount > 0) {
+            successMsg += ` Skipped first ${skipCount} position${skipCount > 1 ? 's' : ''}.`;
+        }
+        successMsg += ' PDF download started.';
+        showStatus(successMsg, 'success');
     } catch (error) {
         console.error(error);
         showStatus('Error generating labels: ' + error.message, 'error');
@@ -648,10 +1589,13 @@ function formatAddressForLabel(addressData) {
     }
 }
 
-function drawLabel(pdf, addressData, x, y, template) {
+function drawLabel(pdf, addressData, x, y, template, iconDataUrl) {
     if (!addressData) return;
 
     const formatted = formatAddressForLabel(addressData);
+    const fontFamily = getSelectedFont();
+    const iconPosition = getIconPosition();
+    const hasIcon = iconDataUrl && selectedIcon !== 'none';
 
     // Build all address lines
     const addressLines = [];
@@ -729,7 +1673,72 @@ function drawLabel(pdf, addressData, x, y, template) {
     }
 
     const padding = 0.06;
-    const maxWidth = template.width - (padding * 2);
+
+    // Calculate icon size based on label height (icon is square)
+    const iconSize = hasIcon ? Math.min(template.height * 0.6, template.width * 0.2, 0.5) : 0;
+    // Convert pixel padding to inches (96 pixels per inch in preview)
+    const iconPadding = hasIcon ? (iconTextPadding / PREVIEW_SCALE) : 0;
+
+    // Adjust text area for icon
+    let textStartX, textMaxWidth, iconX, iconY;
+
+    // Track if we need to adjust vertical start for centered icon
+    let textStartY = null;
+
+    if (hasIcon && useCustomIconPosition) {
+        // Custom position - icon placed at user-specified location
+        iconX = x + (iconPosX * template.width) - (iconSize / 2);
+        iconY = y + (iconPosY * template.height) - (iconSize / 2);
+
+        // Constrain to label bounds
+        iconX = Math.max(x + padding, Math.min(x + template.width - padding - iconSize, iconX));
+        iconY = Math.max(y + padding, Math.min(y + template.height - padding - iconSize, iconY));
+
+        // Determine if icon is on left or right half to adjust text
+        const iconCenterX = iconX + iconSize / 2;
+        const iconCenterY = iconY + iconSize / 2;
+        const labelCenterX = x + template.width / 2;
+        const labelCenterY = y + template.height / 2;
+
+        // Check if icon is horizontally centered (within snap threshold converted to inches)
+        const snapThresholdInches = 0.05; // ~5 pixels at 96dpi
+        const isHorizontallyCentered = Math.abs(iconCenterX - labelCenterX) < snapThresholdInches;
+
+        if (isHorizontallyCentered) {
+            // Icon is centered - text goes below if icon is in top half, above if in bottom
+            textStartX = x + padding;
+            textMaxWidth = template.width - (padding * 2);
+            if (iconCenterY < labelCenterY) {
+                // Icon in top half, text starts below icon
+                textStartY = iconY + iconSize + iconPadding;
+            }
+            // If icon in bottom half, text starts at normal position (top)
+        } else if (iconCenterX < labelCenterX) {
+            // Icon is on left side
+            textStartX = iconX + iconSize + iconPadding;
+            textMaxWidth = template.width - padding - (iconX - x) - iconSize - iconPadding;
+        } else {
+            // Icon is on right side
+            textStartX = x + padding;
+            textMaxWidth = iconX - x - padding - iconPadding;
+        }
+    } else if (hasIcon && iconPosition === 'left') {
+        iconX = x + padding;
+        // Center icon vertically within the label
+        iconY = y + (template.height / 2) - iconSize;
+        textStartX = x + padding + iconSize + iconPadding;
+        textMaxWidth = template.width - (padding * 2) - iconSize - iconPadding;
+    } else if (hasIcon && iconPosition === 'right') {
+        textStartX = x + padding;
+        textMaxWidth = template.width - (padding * 2) - iconSize - iconPadding;
+        iconX = x + template.width - padding - iconSize;
+        // Center icon vertically within the label
+        iconY = y + (template.height / 2) - iconSize;
+    } else {
+        textStartX = x + padding;
+        textMaxWidth = template.width - (padding * 2);
+    }
+
     const maxHeight = template.height - (padding * 2) - startPadding;
 
     // Auto-fit: Find optimal font size that fits all content
@@ -742,8 +1751,8 @@ function drawLabel(pdf, addressData, x, y, template) {
         totalHeight = 0;
 
         for (const line of filteredLines) {
-            pdf.setFont("helvetica", line.isBold ? "bold" : "normal");
-            const wrappedLines = pdf.splitTextToSize(line.text, maxWidth);
+            pdf.setFont(fontFamily, line.isBold ? "bold" : "normal");
+            const wrappedLines = pdf.splitTextToSize(line.text, textMaxWidth);
             totalHeight += wrappedLines.length * lineSpacing;
         }
 
@@ -751,25 +1760,36 @@ function drawLabel(pdf, addressData, x, y, template) {
         fontSize -= 0.5;
     } while (fontSize >= minFontSize);
 
-    // Now draw the text
-    const startX = x + padding;
-    let currentY = y + padding + startPadding;
+    // Draw icon if present
+    if (hasIcon && iconDataUrl && iconX !== undefined && iconY !== undefined) {
+        try {
+            pdf.addImage(iconDataUrl, 'PNG', iconX, iconY, iconSize, iconSize);
+        } catch (e) {
+            console.warn('Could not add icon to PDF:', e);
+        }
+    }
+
+    // Now draw the text - vertically centered in label
     const lineSpacing = (fontSize / 72) * lineSpacingRatio;
+    // Calculate vertical center position for text block
+    // totalHeight already calculated in the font-fitting loop above
+    const textBlockTop = y + (template.height - totalHeight) / 2;
+    let currentY = textStartY !== null ? textStartY : textBlockTop + lineSpacing * 0.85;
 
     for (const line of filteredLines) {
-        pdf.setFont("helvetica", line.isBold ? "bold" : "normal");
+        pdf.setFont(fontFamily, line.isBold ? "bold" : "normal");
         pdf.setFontSize(line.isBold ? fontSize + 1 : fontSize);
 
-        const wrappedLines = pdf.splitTextToSize(line.text, maxWidth);
+        const wrappedLines = pdf.splitTextToSize(line.text, textMaxWidth);
         for (const wrappedLine of wrappedLines) {
             if (currentY > y + template.height - padding) break;
-            pdf.text(wrappedLine, startX, currentY);
+            pdf.text(wrappedLine, textStartX, currentY);
             currentY += lineSpacing;
         }
     }
 }
 
-function generateLabelsPDF(addresses) {
+async function generateLabelsPDF(addresses) {
     const template = TEMPLATES[currentTemplate];
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({
@@ -777,6 +1797,20 @@ function generateLabelsPDF(addresses) {
         unit: 'in',
         format: currentRegion === 'US' ? 'letter' : 'a4'
     });
+
+    // Get icon data URL if an icon is selected
+    let iconDataUrl = null;
+    if (selectedIcon !== 'none') {
+        if (selectedIcon === 'custom' && customIconData) {
+            iconDataUrl = customIconData;
+        } else if (selectedIcon === 'emoji' && currentEmoji) {
+            iconDataUrl = await getEmojiDataUrl(currentEmoji);
+        } else if (iconCache[selectedIcon]) {
+            iconDataUrl = iconCache[selectedIcon];
+        } else {
+            iconDataUrl = await getPresetIconDataUrl(selectedIcon);
+        }
+    }
 
     const labelsPerPage = template.cols * template.rows;
     const totalPages = Math.ceil(addresses.length / labelsPerPage);
@@ -795,7 +1829,7 @@ function generateLabelsPDF(addresses) {
                 const x = template.sideMargin + (col * template.hPitch);
                 const y = template.topMargin + (row * template.vPitch);
 
-                drawLabel(pdf, addressData, x, y, template);
+                drawLabel(pdf, addressData, x, y, template, iconDataUrl);
             }
         }
     }
@@ -1008,15 +2042,23 @@ function updateUploadPreviewStats() {
     if (!template) return;
     const labelsPerPage = template.cols * template.rows;
     const fullSheetCheckbox = document.getElementById('uploadFullSheetCheckbox');
+    const skipCount = getSkipCount();
 
     let labelCount = previewAddresses.length;
     if (fullSheetCheckbox && fullSheetCheckbox.checked && previewAddresses.length === 1) {
-        labelCount = labelsPerPage;
+        labelCount = labelsPerPage - skipCount; // Full sheet minus skipped
     }
 
-    const totalPages = Math.ceil(labelCount / labelsPerPage);
+    // Total positions needed = skipped + actual labels
+    const totalPositions = skipCount + labelCount;
+    const totalPages = Math.ceil(totalPositions / labelsPerPage);
 
-    document.getElementById('previewCount').textContent = `${labelCount} label${labelCount !== 1 ? 's' : ''}`;
+    let labelText = `${labelCount} label${labelCount !== 1 ? 's' : ''}`;
+    if (skipCount > 0) {
+        labelText += ` (skip ${skipCount})`;
+    }
+
+    document.getElementById('previewCount').textContent = labelText;
     document.getElementById('previewPages').textContent = `${totalPages} page${totalPages !== 1 ? 's' : ''}`;
 }
 
@@ -1031,28 +2073,42 @@ function cancelPreview() {
     status.style.display = 'none';
 }
 
-function generateFromPreview() {
+async function generateFromPreview() {
     if (previewAddresses.length === 0) return;
 
     const template = TEMPLATES[currentTemplate];
     const labelsPerPage = template.cols * template.rows;
     const fullSheetCheckbox = document.getElementById('uploadFullSheetCheckbox');
+    const skipCount = getSkipCount();
 
     let addressesToPrint = previewAddresses;
 
     // If full sheet is checked and there's exactly one address, replicate it
     if (fullSheetCheckbox.checked && previewAddresses.length === 1) {
-        addressesToPrint = Array(labelsPerPage).fill(previewAddresses[0]);
+        // Fill remaining positions after skip
+        const fillCount = labelsPerPage - skipCount;
+        addressesToPrint = Array(fillCount).fill(previewAddresses[0]);
     }
 
-    showStatus(`Generating PDF labels for ${addressesToPrint.length} labels...`, 'processing');
+    // Prepend empty entries for skipped labels
+    if (skipCount > 0) {
+        addressesToPrint = [...Array(skipCount).fill(null), ...addressesToPrint];
+    }
+
+    const actualLabelCount = addressesToPrint.filter(a => a !== null).length;
+    showStatus(`Generating PDF labels for ${actualLabelCount} labels (skipping ${skipCount})...`, 'processing');
 
     try {
-        const pdf = generateLabelsPDF(addressesToPrint);
+        const pdf = await generateLabelsPDF(addressesToPrint);
         pdf.save(`${currentTemplate}-labels.pdf`);
 
         const totalPages = Math.ceil(addressesToPrint.length / labelsPerPage);
-        showStatus(`✓ Success! Generated ${addressesToPrint.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
+        let successMsg = `✓ Success! Generated ${actualLabelCount} labels (${totalPages} page${totalPages > 1 ? 's' : ''}).`;
+        if (skipCount > 0) {
+            successMsg += ` Skipped first ${skipCount} position${skipCount > 1 ? 's' : ''}.`;
+        }
+        successMsg += ' PDF download started.';
+        showStatus(successMsg, 'success');
 
         // Clear preview after generating
         cancelPreview();
@@ -1231,15 +2287,23 @@ function updateManualStats() {
     if (!template) return;
     const labelsPerPage = template.cols * template.rows;
     const fullSheetCheckbox = document.getElementById('manualFullSheetCheckbox');
+    const skipCount = getSkipCount();
 
     let labelCount = manualAddresses.length;
     if (fullSheetCheckbox && fullSheetCheckbox.checked && manualAddresses.length === 1) {
-        labelCount = labelsPerPage;
+        labelCount = labelsPerPage - skipCount; // Full sheet minus skipped
     }
 
-    const totalPages = Math.ceil(labelCount / labelsPerPage);
+    // Total positions needed = skipped + actual labels
+    const totalPositions = skipCount + labelCount;
+    const totalPages = Math.ceil(totalPositions / labelsPerPage);
 
-    document.getElementById('manualAddressCount').textContent = `${labelCount} label${labelCount !== 1 ? 's' : ''}`;
+    let labelText = `${labelCount} label${labelCount !== 1 ? 's' : ''}`;
+    if (skipCount > 0) {
+        labelText += ` (skip ${skipCount})`;
+    }
+
+    document.getElementById('manualAddressCount').textContent = labelText;
     document.getElementById('manualPageCount').textContent = `${totalPages} page${totalPages !== 1 ? 's' : ''}`;
 }
 
@@ -1322,28 +2386,42 @@ function deleteManualAddress(index) {
     updateAddressesList();
 }
 
-function generateFromManual() {
+async function generateFromManual() {
     if (manualAddresses.length === 0) return;
 
     const template = TEMPLATES[currentTemplate];
     const labelsPerPage = template.cols * template.rows;
     const fullSheetCheckbox = document.getElementById('manualFullSheetCheckbox');
+    const skipCount = getSkipCount();
 
     let addressesToPrint = manualAddresses;
 
     // If full sheet is checked and there's exactly one address, replicate it
     if (fullSheetCheckbox && fullSheetCheckbox.checked && manualAddresses.length === 1) {
-        addressesToPrint = Array(labelsPerPage).fill(manualAddresses[0]);
+        // Fill remaining positions after skip
+        const fillCount = labelsPerPage - skipCount;
+        addressesToPrint = Array(fillCount).fill(manualAddresses[0]);
     }
 
-    showStatus(`Generating PDF labels for ${addressesToPrint.length} labels...`, 'processing');
+    // Prepend empty entries for skipped labels
+    if (skipCount > 0) {
+        addressesToPrint = [...Array(skipCount).fill(null), ...addressesToPrint];
+    }
+
+    const actualLabelCount = addressesToPrint.filter(a => a !== null).length;
+    showStatus(`Generating PDF labels for ${actualLabelCount} labels (skipping ${skipCount})...`, 'processing');
 
     try {
-        const pdf = generateLabelsPDF(addressesToPrint);
+        const pdf = await generateLabelsPDF(addressesToPrint);
         pdf.save(`${currentTemplate}-labels.pdf`);
 
         const totalPages = Math.ceil(addressesToPrint.length / labelsPerPage);
-        showStatus(`✓ Success! Generated ${addressesToPrint.length} labels (${totalPages} page${totalPages > 1 ? 's' : ''}). PDF download started.`, 'success');
+        let successMsg = `✓ Success! Generated ${actualLabelCount} labels (${totalPages} page${totalPages > 1 ? 's' : ''}).`;
+        if (skipCount > 0) {
+            successMsg += ` Skipped first ${skipCount} position${skipCount > 1 ? 's' : ''}.`;
+        }
+        successMsg += ' PDF download started.';
+        showStatus(successMsg, 'success');
     } catch (error) {
         console.error(error);
         showStatus('Error generating labels: ' + error.message, 'error');
